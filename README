@@ -1,0 +1,49 @@
+== quickstart ==
+To start a new game, you can just and access the cgi script (rg.cgi)
+and click 'reset', then click 'really reset!!'
+
+The main view is the admin view.  Press "player view" to see the
+screen the player would have.  Press "auto view" for an automatically
+updated (every 2 seconds) player view.
+
+== Running under another web server ==
+To run on a machine with an existing web server,
+put peril.cgi into /var/www/cgi-bin, and change the
+data path to where you put the trivia.py and rps.py files.  The data
+path must be read/writable by the cgi script (which means the
+web server).
+
+Then point your browser at: http://server.address/cgi-bin/rg.cgi
+
+== Running with local web server ==
+To run on a machine without a web server, run ./start_server.
+
+Then point your browser at: http://localhost:8000/rg.cgi
+
+To log in as admin, use this url:
+http://localhost:8000/rg.cgi?user_id=admin_game_admin
+
+== pre-game ==
+Remove user registration files in the rgdata directory
+Remove winner files in the rgdata directory
+
+== Operating the game ==
+From the admin screen,
+
+You can administer the game and display the player view on
+a single machine, using two browsers.
+
+If using this to display a player view for an audience,
+the machine should have the capability to
+show a full-screen browser on one screen (the projected screen),
+and a separate browser on another screen.
+
+The game progresses in 2 sets of rounds, for two different games:
+1 Red-green trivia game
+2 rock-paper-scissors game
+
+Every operation performed (link clicked, or data entry submitted)
+changes the game's data file.
+If you click on the wrong thing, or enter the wrong data, you can
+click 'undo' to revert to a previous game state.
+

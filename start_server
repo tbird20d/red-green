@@ -1,0 +1,7 @@
+#!/bin/sh
+
+echo "Access the game at: http://localhost:8000/rg.cgi"
+
+unset http_proxy
+unset ftp_proxy
+exec python cgiserver.py

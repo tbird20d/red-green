@@ -1,0 +1,163 @@
+To do file for red-green web-based game.
+
+= how to restart =
+ - cd ~/work/games/red-green ; ./start_server
+ - from timdesk: chrome: http://localhost:8000/rg.cgi?user_id=one
+   - this browser should have the cookie for user_id==one
+ - from timdesk: firefox: http://localhost:8000/rg.cgi?user_id=admin-game-admin
+   - this browser should have the cookie for user_id==admin-game-admin (alias=admin)
+ - from laptop: chrome: http://10.0.1.61:8000/rg.cgi?user_id=ABCDEF
+   - this browser should have the cookie for user_id==ABCDEF (alias=two)
+
+= to do =
+ - convert everything to flask
+   - install flask - see NOTES-flask-install.txt
+   - convert all prints to html +=
+   - return html to flask, along with headers (cookies), etc.
+   - convert user database to internal data structure (user dictionary?)
+   - eliminate global variables
+     - suppress_refresh, print_data, admin_view
+     - put them into data, or new 'req' object?
+ - remove all FIXTHIS items
+ - fix all bugs (see below)
+ - test it with multiple participants
+ - add real questions to trivia.py
+ - add number of questions and number of rounds to html_end status
+ - add message when user is eliminated
+ - make the player screen pretty
+   - change page colors
+   - add graphics
+   - user nicer layout
+ - add score to user, and display on "done" page.
+   - add score to user file
+ - make the admin controls stateful
+   - highlight phase of game we're in (trivia or rps)
+   - indicate the next logical action
+     - if still_in_count > 15, disable declare_winners
+     - if state=="question", disable next_question (or highlight show_answer)
+     - etc
+ - add weird options to rps:
+   - rock, paper, scissors, lizard, spock
+   - windows, linux, mac
+   - Linus, Greg, Andrew
+   - Intel, Arm, RiscV
+   - add "flavor" text to rps game
+
+== fix bugs ==
+ - sometimes, the server and browser get stuck
+   - I have to ctrl-C the server and restart it
+   - not sure if it's related to missing html_start()??
+ - players are eliminated even on correct answers
+
+== game outline ==
+   - have game phases:
+     - registration
+       - do registration while doing announcements and thank-yous
+     - red-green game
+     - rock-paper-scissors (RPS)
+   - registration page
+       - server keeps track of players still alive in a round
+       - admin allows for visibility of next question
+         - have 2 interfaces: admin, player
+           - admin interface:
+             - number voted
+               - number red, green, both, neither
+               - number left in round, current question
+             - names of players left in round (if less than 20)
+           - admin links:
+             - reveal answer
+             - go to next question
+             - reset voters
+               - end round, designate winners
+           - player interface:
+             - question page:
+               - current question
+               - answer selection form:
+                 - red, green checkboxes
+               - eliminated status (still in or not)
+             - waiting page: 
+               - player answer (red, green, both, neither)
+               - number left in round
+               - eliminated status (still in or not)
+             - answer page:
+               - player answer (red, green, both, neither)
+               - indication of correct or not
+               - number left in round
+               - eliminated status (still in or not)
+       - game is played in 'rounds'
+       - rock, paper, scissors - online
+         - admin interface
+             - number voted
+               - number rock, paper, scissors
+               - number still voting
+               - current round number
+         - admin links:
+            - reveal answer
+         - player interface:
+             - question page:
+               - current question = always (rock, paper or scissors)
+               - answer selection form:
+                 - rock, paper, scissors radio button
+               - eliminated status (still in or not)
+             - waiting page: 
+               - player answer (rock, paper or scissors)
+               - number left in round
+               - eliminated status (still in or not)
+             - answer page:
+               - player answer (rock, paper, or scissors)
+               - admin choice (rock, paper, or scissors)
+               - indication of correct or not
+               - number left in round
+               - eliminated status (still in or not)
+
+
+= done =
+ + determine how game will work
+ + define phases: registration, trivia, rps
+   + create registration phase
+     + create file per user 
+       + has data: player id, email, name, alias, answers, status 
+     + create registration form page
+     + create user cookie
+       + make sure cookie works
+     + add 'logout' action
+ + create wait-for-game-start page (refreshing while waiting for admin)
+   + count number of users
+   + put user_id and number of users on waiting page
+
+ + create 'start_game' action
+   + move to 'trivia' phase, and set question_num to 1
+
+ + create trivia phase
+   + create trivia file
+   + create question page
+     + with answer form
+   + create question_waiting page
+     + show user's answer
+     + show count of votes
+     + show users status
+   + create answer page
+     + show user's answer
+   + move change user status to 'out', when they get answer wrong
+   + clear users answers when starting next question
+
+ + create "declare winners" action
+   + save winners to file
+     + save data for each winner (users with status 'still-in')
+ + create "reset status" action
+   + move all users back to 'still-in' status
+ + create show_winners page
+   + show list of winners
+     + read winner file
+     + show alias for each winner
+     + on admin page, show a link to 'reset status'
+
+ + create 'start_rps' action
+   + change all user statuses to "still-in"
+
+ + create rps phase
+   + create rps file
+     + import rps data
+   + create show_rps function
+ + create show_result_page
+ + create show_rps_waiting_page
