@@ -114,19 +114,23 @@ class data_class():
         elif hasattr(self, key):
             item = getattr(self,key)
         else:
-            raise LookupError
+            raise KeyError
 
         if callable(item):
             return item(self)
         else:
             return item
 
+    def __setitem__(self, key, value):
+        self.data[key] = value
+
     def keys(self):
+        # FIXTHIS - are the __dict__ keys needed?
         keys = self.__dict__.keys()
         keys.append(self.data.keys())
         return keys
 
-stub_data = {
+old_stub_data = {
 "data_sequence":"0",
 "winner_group":"1",
 "phase":"registration", # registration, trivia, rps
@@ -135,6 +139,15 @@ stub_data = {
     # query, waiting, result, winners ; for rps
 "round_num":"1",
 }
+
+stub_data = data_class()
+stub_data["data_sequence"] = "0"
+stub_data["winner_group"] = "1"
+stub_data["phase"] = "registration"  # registration, trivia, rps
+stub_data["question_num"] = "1"
+stub_data["state"] = "question" # question, waiting, answer, winners ; for trivia
+    # query, waiting, result, winners ; for rps
+stub_data["round_num"] = "1"
 
 class user_class():
     def __init__(self, user_id, alias, name, email, status="still-in"):
@@ -226,11 +239,13 @@ def read_game_data(game_filename):
         add_error_message("Warning: failed to open game data file: %s\n<p>\n" % game_filename)
         game_lines = []
 
-    data = stub_data.copy()
+    #data = stub_data.copy()
+    data = stub_data.data
     for line in game_lines:
         line = line.strip()
         if line and line[0]!='#':
             (name, value) = line.split('=',1)
+            # FIXTHIS - (data_change) use data_class.set_attr instead???
             data[name] = value
 
     data["game_filename"] = game_filename
@@ -1491,7 +1506,8 @@ If so, click on the link below to really reset the game:<br>
 
     if action=="really_reset":
         # save some variables...
-        reset_data = stub_data.copy()
+        #reset_data = stub_data.copy()
+        reset_data = stub_data.data
 
         # remove all undo sequence files
         remove_undo_data_files()
