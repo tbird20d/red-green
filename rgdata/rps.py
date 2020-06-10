@@ -5,13 +5,13 @@
 #            qdata[question_num][1] = answer code
 #            qdata[question_num][2] = answer text
 rps_data = {
-    "1": "rock",
-    "2": "rock",
-    "3": "paper",
-    "4": "rock",
-    "5": "scissors",
-    "6": "scissors",
-    "7": "rock",
-    "8": "paper",
-    "9": "scissors",
+    1: "rock",
+    2: "rock",
+    3: "paper",
+    4: "rock",
+    5: "scissors",
+    6: "scissors",
+    7: "rock",
+    8: "paper",
+    9: "scissors",
 }

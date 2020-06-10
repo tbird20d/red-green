@@ -5,7 +5,7 @@
 #            qdata[question_num][1] = answer code
 #            qdata[question_num][2] = answer text
 qdata = {
-"1": [
+1: [
       "Do bears poop in the woods?",
       "true",
       "false",
@@ -13,7 +13,7 @@ qdata = {
       "red",
       "According to wikipedia, bears poop in the woods 90% of the time"
      ],
-"2": [
+2: [
       "What color do you get by mixing blue and yellow?",
       "red",
       "green",
@@ -21,7 +21,7 @@ qdata = {
       "green",
       "Or maybe chartreuse, if you use too much yellow..."
      ],
-"3": [ "Who benefits from open source?",
+3: [ "Who benefits from open source?",
       "Developers",
       "Customers",
       "Companies",
