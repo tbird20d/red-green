@@ -11,15 +11,19 @@ To do file for red-green web-based game.
 
 = to do =
  - convert everything to flask
-   - install flask - see NOTES-flask-install.txt
-   - convert all prints to html +=
+   + install flask - see NOTES-flask-install.txt
+   + convert all prints to html_append
+   + convert user database to internal data structure (user dictionary?)
+   + eliminate global variables
+     + put them into data_class
+     - show_data
+     + admin_view
+     + header_shown
+   - call start_response with headers and cookies
    - return html to flask, along with headers (cookies), etc.
-   - convert user database to internal data structure (user dictionary?)
-   - eliminate global variables
-     - suppress_refresh, print_data, admin_view
-     - put them into data, or new 'req' object?
  - remove all FIXTHIS items
  - fix all bugs (see below)
+ - support action=logout
  - test it with multiple participants
  - add real questions to trivia.py
  - add number of questions and number of rounds to html_end status
@@ -47,7 +51,7 @@ To do file for red-green web-based game.
  - sometimes, the server and browser get stuck
    - I have to ctrl-C the server and restart it
    - not sure if it's related to missing html_start()??
- - players are eliminated even on correct answers
+ + players are eliminated even on correct answers
 
 == game outline ==
    - have game phases:
