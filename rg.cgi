@@ -1487,7 +1487,7 @@ def do_action(action, data, form, user):
         write_game_data(data)
 
     elif action == "reset":
-        data.suppress_refresh = "True"
+        data.suppress_refresh = True
         html_start(data, user)
         data.html_append("""<h1>### RESET ###</h1>
 Are you sure you want to reset the game?<br>
@@ -1545,7 +1545,7 @@ If so, click on the link below to really reset the game:<br>
         write_game_data(data)
 
     elif action == "undo":
-        data.suppress_refresh = "True"
+        data.suppress_refresh = True
         html_start(data, user)
         data.html_append("""<h1>### UNDO ###</h1>
 Are you sure you want to undo a step in the game?<br>
