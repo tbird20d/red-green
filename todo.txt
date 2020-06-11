@@ -10,20 +10,9 @@ To do file for red-green web-based game.
    - this browser should have the cookie for user_id==ABCDEF (alias=two)
 
 = to do =
- - convert everything to flask
-   + install flask - see NOTES-flask-install.txt
-   + convert all prints to html_append
-   + convert user database to internal data structure (user dictionary?)
-   + eliminate global variables
-     + put them into data_class
-     - show_data
-     + admin_view
-     + header_shown
-   - call start_response with headers and cookies
-   - return html to flask, along with headers (cookies), etc.
+ - add 'logout' and 'reload' links for users
  - remove all FIXTHIS items
  - fix all bugs (see below)
- - support action=logout
  - test it with multiple participants
  - add real questions to trivia.py
  - add number of questions and number of rounds to html_end status
@@ -52,6 +41,25 @@ To do file for red-green web-based game.
    - I have to ctrl-C the server and restart it
    - not sure if it's related to missing html_start()??
  + players are eliminated even on correct answers
+
+== done ==
+ + resolve refresh issue
+   + only do an action once, then change the url for action=none ??
+     + why is refresh resending the URL data (?action=next_question)
+   + was a bug with quotes in the meta refresh line
+ + support action=logout
+2020-06-11 + convert everything to wsgi 
+   + install flask - see NOTES-flask-install.txt
+   + convert all prints to html_append
+   + convert user database to internal data structure (user dictionary?)
+   + eliminate global variables
+     + put them into data_class
+     + admin_view
+     + header_shown
+     - show_data (leave this one)
+   + call start_response with headers and cookies
+   + return html to wsgi, along with headers (cookies), etc.
+
 
 == game outline ==
    - have game phases:

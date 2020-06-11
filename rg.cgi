@@ -10,12 +10,13 @@ import cgi
 import re
 import cgitb
 
+#cgitb.enable(display=0, logdir="/home/tbird/work/tbwiki-data/grow/files")
 cgitb.enable()
 
 # turn this on to show the game data in the admin view
 # (for debugging)
-show_data = True
-user_show_data = True
+show_data = False
+user_show_data = False
 
 data_dir = "/home/tbird/work/games/red-green/rgdata/"
 
@@ -31,9 +32,10 @@ game_file_fmt = "rgdata-%03d.txt"
 
 user_file_pattern = "rg-user-.*[.]txt"
 user_file_fmt = "rg-user-%s.txt"
-url = "rg.cgi"
 
 winner_file_fmt = "winners-%02d.txt"
+CGI_URL = "/cgi-bin/rg.cgi"
+WSGI_URL = "/rg"
 
 REFRESH_SECONDS = 4
 
@@ -112,8 +114,6 @@ NOBODY_USER_ID = "nobody-not-logged-in"
 #
 # The admin screen allows changing the game state.
 #
-
-
 class data_class(object):
     def __init__(self):
         self.data = {}
@@ -124,6 +124,10 @@ class data_class(object):
         self.suppress_refresh = False
         self.header_shown = False
         self.cookie = ""
+        self.resp_status = "200 OK"
+        self.resp_headers = [('Content-type', 'text/html')]
+        self.is_wsgi = False
+        self.url = CGI_URL
 
         # here is the game data
         self.game_attr_list = ['sequence', 'winner_group', 'phase',
@@ -448,7 +452,7 @@ Please choose an answer:
   </tr><tr>
     <td><font color="green">Green</font> : </td>
     <td><INPUT type="radio" name="answer" value="green">%s</td>
-""" % (url, red_text, green_text))
+""" % (data.url, red_text, green_text))
 
     if both_text:
         data.html_append("""
@@ -785,7 +789,7 @@ Please choose an item to "throw":
 </ul>
 <FORM>
 <p>
-""" % (data.round_num, url))
+""" % (data.round_num, data.url))
 
 ######################################################
 
@@ -1031,22 +1035,21 @@ I hope you had a good time!!
 ######################################################
 
 def html_start(data, user, refresh=False):
-    # FIXTHIS - save headers for WSGI use
-    html = ""
-    if not data.header_shown:
-        html += "Content-type: text/html\n"
-        if data.cookie:
-            html += data.cookie
-        html += '\n\n'
-        data.header_shown = True
-    data.html_append(html)
-
-    #raise Exception, html
-    #data.emit_html()
+    # for CGI, output the HTTP headers ourself, at the start of HTML
+    # WSGI will output them separately in the application() function
+    if not data.is_wsgi:
+        html = ""
+        if not data.header_shown:
+            html += "Content-type: text/html\n"
+            if data.cookie:
+                html += data.cookie
+            html += '\n\n'
+            data.header_shown = True
+        data.html_append(html)
 
     if refresh and not data.suppress_refresh:
-        refresh_str = '<meta http-equiv="refresh" content="%d"; url=%s">' % \
-            (REFRESH_SECONDS, url)
+        refresh_str = '<meta http-equiv="refresh" content="%d; url=%s"/>' % \
+            (REFRESH_SECONDS, data.url)
     else:
         refresh_str = ''
 
@@ -1088,7 +1091,7 @@ def html_start(data, user, refresh=False):
 
 def html_end(data):
     if data.admin_view:
-        d = {"url": url}
+        d = {"url": data.url}
         d["sequence"] = data.sequence
 
 
@@ -1105,7 +1108,7 @@ def html_end(data):
         ### show trivia controls
         # make some controls conditional
         d["question_num"] = str(data.question_num)
-        d["next_link"] = '<a href="%s?action=next_question">next_question</a>' % url
+        d["next_link"] = '<a href="%s?action=next_question">next_question</a>' % data.url
         last_question = max([int(k) for k in tdata.keys()])
 
         if data.question_num >= last_question:
@@ -1122,7 +1125,7 @@ def html_end(data):
 
         # show rps controls
         d["round_num"] = str(data.round_num)
-        d["next_link"] = '<a href="%s?action=next_round">next_round</a>' % url
+        d["next_link"] = '<a href="%s?action=next_round">next_round</a>' % data.url
 
         last_round = max([int(k) for k in rps_data.keys()])
 
@@ -1310,7 +1313,7 @@ def show_register_form(data, user_id, alias, name, email):
   a small number of contestants still in the running for a prize, for a particular
   trivia round.
 </ul>
-""" % (url, user_id, alias, name, email))
+""" % (data.url, user_id, alias, name, email))
 
 def do_register_user(data, form):
     # collect user data from form
@@ -1413,7 +1416,7 @@ def do_action(action, data, form, user):
             "Set-Cookie: user_id=;expires=Thu, 01 Jan 1970 00:00:01 GMT"
         html_start(data, None)
         data.html_append("<h1>User logged out</h1>")
-        data.html_append('Click <a href="%s">here</a> to reload page' % url)
+        data.html_append('Click <a href="%s">here</a> to reload page' % data.url)
         done = True
 
     elif action == "start_trivia":
@@ -1438,7 +1441,7 @@ def do_action(action, data, form, user):
 
     elif phase == "trivia" and action == "next_question":
         last_state = data.state
-        if data.question_num < len(tdata)-1:
+        if data.question_num < len(tdata):
             data.question_num += 1
         else:
             data.add_error_message("""Cannot move to next question.
@@ -1494,7 +1497,7 @@ Are you sure you want to reset the game?<br>
 If so, click on the link below to really reset the game:<br>
 <a href="%s?action=really_reset">Really Reset!!</a>&nbsp;&nbsp;&nbsp;
 <a href="%s">cancel (don't reset)</a>
-""" % (url, url))
+""" % (data.url, data.url))
 
     elif action == "really_reset":
         # save initial variables...
@@ -1516,7 +1519,7 @@ If so, click on the link below to really reset the game:<br>
 <FORM method=post action="%s">
 <INPUT type=hidden name="action" value="set_values">
 <table border=0>
-""" % url)
+""" % data.url)
         keys = data.keys()
         keys.sort()
         for name in keys:
@@ -1552,7 +1555,7 @@ Are you sure you want to undo a step in the game?<br>
 If so, click on the link below to really undo 1 game step:<br>
 <a href="%s?action=really_undo">Really undo!!</a>&nbsp;&nbsp;&nbsp;
 <a href="%s">cancel (don't undo anything)</a>
-""" % (url, url))
+""" % (data.url, data.url))
 
     elif action == "really_undo":
         # back up one data file
@@ -1576,7 +1579,11 @@ If so, click on the link below to really undo 1 game step:<br>
 
 def get_user_id(data, form):
     user_id = None
-    cookie = os.environ["HTTP_COOKIE"]
+    try:
+        cookie = os.environ["HTTP_COOKIE"]
+    except KeyError:
+        cookie = ""
+
     #data.add_notice("in get_user_id(): os.environ=%s" % str(os.environ))
     #data.add_notice("in get_user_id(): cookie=%s" % cookie)
     if "user_id=" in cookie:
@@ -1605,15 +1612,7 @@ def get_user_id(data, form):
 
 ######################################################
 
-def main():
-    form = cgi.FieldStorage()
-
-    # we have a chicken-and-egg problem here
-    pre_data = data_class()
-    data = read_game_data_from_last_file(pre_data)
-    data.html = pre_data.html
-    data.err_msg_list = pre_data.err_msg_list
-
+def handle_request(data, form):
     user_id = get_user_id(data, form)
     # data.add_notice("user_id from form = '%s'" % str(user_id))
     user = user_class(NOBODY_USER_ID, "not-logged-in", "", "")
@@ -1639,8 +1638,45 @@ def main():
         show_page(data, form, user)
 
     html_end(data)
-    # start_response(status, response_header)
+
+
+def main():
+    form = cgi.FieldStorage()
+
+    # we have a chicken-and-egg problem here
+    pre_data = data_class()
+    data = read_game_data_from_last_file(pre_data)
+    data.html = pre_data.html
+    data.err_msg_list = pre_data.err_msg_list
+
+    handle_request(data, form)
+
     data.emit_html()
+
+def application(environ, start_response):
+    form = cgi.FieldStorage(
+            fp = environ['wsgi.input'],
+            environ = environ,
+            keep_blank_values = True
+            )
+
+    # we have a chicken-and-egg problem here
+    pre_data = data_class()
+    data = read_game_data_from_last_file(pre_data)
+    data.html = pre_data.html
+    data.err_msg_list = pre_data.err_msg_list
+    data.is_wsgi = True
+    data.url = WSGI_URL
+
+    handle_request(data, form)
+
+    # convert data.cookie to WSGI resp_headers format (ie a tuple)
+    if data.cookie:
+        set_cookie, cookie = data.cookie.split(":")
+        data.resp_headers.append((set_cookie, cookie))
+
+    start_response(data.resp_status, data.resp_headers)
+    return data.html
 
 if __name__ == "__main__":
     main()
