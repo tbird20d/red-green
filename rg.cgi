@@ -141,7 +141,7 @@ class data_class(object):
     def set_data(self, new_data):
         for key in new_data.__dict__.keys():
             if key in self.game_attr_list:
-                self.__dict__[key] = new_data.__dict__.[key]
+                self.__dict__[key] = new_data.__dict__[key]
 
     def __getitem__(self, key):
         if self.data.has_key(key):
@@ -1505,6 +1505,8 @@ If so, click on the link below to really reset the game:<br>
 
         write_game_data(reset_data)
         data.set_data(reset_data)
+        data.suppress_refresh = True
+        data.add_error_message("Click 'main' to continue")
 
     elif action == "edit_game":
         # show a form to set values directly

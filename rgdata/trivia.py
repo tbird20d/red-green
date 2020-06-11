@@ -4,7 +4,7 @@
 #   that is: qdata[question_num][0] = question text
 #            qdata[question_num][1] = answer code
 #            qdata[question_num][2] = answer text
-qdata = {
+tdata = {
 1: [
       "Do bears poop in the woods?",
       "true",
