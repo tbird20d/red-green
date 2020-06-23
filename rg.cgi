@@ -18,6 +18,9 @@ cgitb.enable()
 show_data = False
 user_show_data = False
 
+# keep pages from automatically refreshing, while I'm debugging
+default_suppress_refresh = True
+
 data_dir = "/home/tbird/work/games/red-green/rgdata/"
 
 # import the trivia data
@@ -121,7 +124,7 @@ class data_class(object):
         self.err_msg_list = []
         self.admin_view = False
         self.notice_list = []
-        self.suppress_refresh = False
+        self.suppress_refresh = default_suppress_refresh
         self.header_shown = False
         self.cookie = ""
         self.resp_status = "200 OK"
@@ -1047,9 +1050,11 @@ def html_start(data, user, refresh=False):
             data.header_shown = True
         data.html_append(html)
 
+    data.should_refresh = False
     if refresh and not data.suppress_refresh:
         refresh_str = '<meta http-equiv="refresh" content="%d; url=%s"/>' % \
             (REFRESH_SECONDS, data.url)
+        data.should_refresh = True
     else:
         refresh_str = ''
 
@@ -1577,15 +1582,25 @@ If so, click on the link below to really undo 1 game step:<br>
 
 ######################################################
 
-def get_user_id(data, form):
+def dict_to_html(d):
+    keys = d.keys()
+    keys.sort()
+    html = ""
+    for key in keys:
+        html += "<b>%s</b>=%s<br>" % (key, d[key])
+    return html
+
+######################################################
+
+def get_user_id(environ, data, form):
     user_id = None
     try:
-        cookie = os.environ["HTTP_COOKIE"]
+        cookie = environ["HTTP_COOKIE"]
     except KeyError:
         cookie = ""
 
-    #data.add_notice("in get_user_id(): os.environ=%s" % str(os.environ))
-    #data.add_notice("in get_user_id(): cookie=%s" % cookie)
+    # data.add_notice("in get_user_id(): environ=%s" % dict_to_html(environ))
+    # data.add_notice("in get_user_id(): cookie=%s" % cookie)
     if "user_id=" in cookie:
         (jfirst, value) = cookie.split("user_id=", 1)
         if value.find(";") != -1:
@@ -1612,8 +1627,8 @@ def get_user_id(data, form):
 
 ######################################################
 
-def handle_request(data, form):
-    user_id = get_user_id(data, form)
+def handle_request(environ, data, form):
+    user_id = get_user_id(environ, data, form)
     # data.add_notice("user_id from form = '%s'" % str(user_id))
     user = user_class(NOBODY_USER_ID, "not-logged-in", "", "")
     if user_id == ADMIN_USER_ID:
@@ -1627,6 +1642,7 @@ def handle_request(data, form):
             else:
                 data.add_error_message("Invalid user_id '%s' specified in cookie" % user_id)
 
+    # data.add_notice("user.logged_in = '%s'" % str(user.logged_in))
     done = False
     if "action" in form:
         action = form["action"].value
@@ -1649,7 +1665,7 @@ def main():
     data.html = pre_data.html
     data.err_msg_list = pre_data.err_msg_list
 
-    handle_request(data, form)
+    handle_request(os.environ, data, form)
 
     data.emit_html()
 
@@ -1668,7 +1684,7 @@ def application(environ, start_response):
     data.is_wsgi = True
     data.url = WSGI_URL
 
-    handle_request(data, form)
+    handle_request(environ, data, form)
 
     # convert data.cookie to WSGI resp_headers format (ie a tuple)
     if data.cookie:
