@@ -1,8 +1,21 @@
 #!/usr/bin/env python
-
-# Copyright 2020 by Tim Bird
-# j in front of variable means "junk_" - something that is discarded
-# and not used in the function
+# SPDX-License-Identifier: MIT
+#
+# Copyright 2020 by Sony Corporation
+#
+# Author: Tim Bird <tim.bird@sony.com> or <tbird20d@yahoo.com>
+#
+# This is an implementation of the "red-green" trivia game, often
+# used for the closing game session of the Embedded Linux Conference.
+# This can be used as either a CGI script or a WSGI script.
+#
+# See "GAME DATA and state machine" below for a description of
+# game data.
+#
+# Implementation notes:
+#   j in front of variable means "junk_" - something that is discarded
+#   and not used in the function
+#
 
 import sys
 import os
@@ -19,7 +32,8 @@ show_data = False
 user_show_data = False
 
 # keep pages from automatically refreshing, while I'm debugging
-default_suppress_refresh = True
+default_suppress_refresh = False
+#default_suppress_refresh = True
 
 data_dir = "/home/tbird/work/games/red-green/rgdata/"
 
@@ -76,7 +90,7 @@ NOBODY_USER_ID = "nobody-not-logged-in"
 #  ...
 # }
 
-#
+#  GAME DATA and state machine
 # The game has 4 phases:
 #   - registration          (phase="registration")
 #   - red-green trivia      (phase="trivia")
@@ -125,6 +139,7 @@ class data_class(object):
         self.admin_view = False
         self.notice_list = []
         self.suppress_refresh = default_suppress_refresh
+        self.is_form_page = False
         self.header_shown = False
         self.cookie = ""
         self.resp_status = "200 OK"
@@ -250,7 +265,6 @@ class user_class(object):
 
 ######################################################
 
-
 def read_game_data_from_last_file(data):
     # read from the last-numbered game-data file
     file_list = os.listdir(data_dir)
@@ -361,9 +375,23 @@ def get_status_counts(data):
 
 def show_status_counts(data):
     (user_count, still_in, answers) = get_status_counts(data)
-    data.html_append("answer count=%d<br>" % answers)
-    data.html_append("still-in count=%d<br>" % still_in)
-    data.html_append("user count=%d\n<p>" % user_count)
+    data.html_append('Game status:<br><table border="1"><tr>')
+    data.html_append('<td>registered users</td>')
+    data.html_append('<td>answers</td><td>still-in count</td>')
+    data.html_append('<td width="10px">&nbsp;</td>')
+    data.html_append('<td>sequence</td><td>phase</td><td>state</td>')
+    data.html_append('<td>question</td><td>round</td>')
+    data.html_append('</tr><tr>')
+    data.html_append('<td align="center">%d</td>' % user_count)
+    data.html_append('<td align="center">%d</td>' % answers)
+    data.html_append('<td align="center">%d</td>' % still_in)
+    data.html_append('<td align="center">&nbsp;</td>')
+    data.html_append('<td align="center">%d</td>' % data.sequence)
+    data.html_append('<td align="center">"%s"</td>' % data.phase)
+    data.html_append('<td align="center">"%s"</td>' % data.state)
+    data.html_append('<td align="center">%d</td>' % data.question_num)
+    data.html_append('<td align="center">%d</td>' % data.round_num)
+    data.html_append('</tr></table>')
 
 ######################################################
 
@@ -414,6 +442,7 @@ def show_registration(data, user):
         html_start(data, user)
         data.html_append("This is the registration page.\n<p>\n")
         show_register_form(data, "", "", "", "")
+        data.is_form_page = True
     else:
         html_start(data, user, True)
         show_waiting_page(data)
@@ -475,6 +504,7 @@ Please choose an answer:
 <FORM>
 <p>
 """)
+    data.is_form_page = True
 
 ######################################################
 
@@ -546,8 +576,6 @@ You chose an answer:
 <p>
 <hr>
 <h1 align="center">Waiting for answer</h1>
-<HR>\n<p>\n
-Page will refresh automatically.<br>
 <HR>\n<p>\n
 """)
 
@@ -652,8 +680,6 @@ You chose an answer:
 <p>\n<HR>\n<p>\n
 %s
 <HR>\n<p>\n
-Page will refresh automatically.<br>
-<HR>\n<p>\n
 """ % (answer_text, msg))
 
     if data.admin_view:
@@ -690,10 +716,6 @@ Here is the list of winners:
     else:
         if not is_winner:
             data.html_append("Sorry - you did not win this time.\n<p>\n")
-
-        data.html_append("""<HR>\n<p>\n
-Page will refresh automatically.<br>
-<HR>\n<p>\n""")
 
 ######################################################
 
@@ -766,7 +788,7 @@ def show_trivia(data, form, user):
 
 ######################################################
 
-def show_query_form(data):
+def show_rps_query_form(data):
     data.html_append("""
 <h1>Round # %d</h1>
 
@@ -793,6 +815,7 @@ Please choose an item to "throw":
 <FORM>
 <p>
 """ % (data.round_num, data.url))
+    data.is_form_page = True
 
 ######################################################
 
@@ -842,8 +865,6 @@ You chose a "throw":
     data.html_append("""
 <HR>
 <h1 align="center">Waiting for answer</h1>
-<HR>\n<p>\n
-Page will refresh automatically.<br>
 <HR>\n<p>\n
 """)
 
@@ -933,8 +954,6 @@ You chose a "throw":
 <p><HR>\n<p>\n
 %s
 <p><HR>\n<p>\n
-Page will refresh automatically.<br>
-<HR>\n<p>\n
 """ % msg)
 
     if data.admin_view:
@@ -979,7 +998,7 @@ def show_rps(data, form, user):
     if not data.admin_view:
         if state == "query":
             html_start(data, user)
-            show_query_form(data)
+            show_rps_query_form(data)
         elif state == "waiting":
             html_start(data, user, True)
             show_rps_waiting_page(data, answer)
@@ -992,7 +1011,7 @@ def show_rps(data, form, user):
         else:
             data.add_error_message("unknown rps state: %s" % state)
             html_start(data, user)
-            show_query_form(data)
+            show_rps_query_form(data)
     else:
         if state == "query" or state == "waiting":
             html_start(data, user, True)
@@ -1006,7 +1025,7 @@ def show_rps(data, form, user):
         else:
             data.add_error_message("unknown rps state: %s" % state)
             html_start(data, user)
-            show_query_form(data)
+            show_rps_query_form(data)
 
 ######################################################
 
@@ -1034,6 +1053,7 @@ closing game.
 I hope you had a good time!!
 <p>
     """)
+    data.is_form_page = True
 
 ######################################################
 
@@ -1065,27 +1085,30 @@ def html_start(data, user, refresh=False):
 %s
 </HEAD>
 <BODY BGCOLOR="LightBlue">
+<table border="1" bgcolor="DDDDDD"><tr>
 """ % (refresh_str))
 
     if user and user.logged_in:
-        data.html_append("<hr>| Logged in as: <b>%s</b> |\n" % user.alias)
+        data.html_append("<td>&nbsp;Logged in as: <b>%s</b>&nbsp;</td>\n" % user.alias)
     else:
-        data.html_append("<hr>| Not logged in. |\n")
+        data.html_append("<td>&nbsp;Not logged in.&nbsp;</td>\n")
 
     if user and data.phase != "registration":
-        data.html_append(" == |&nbsp;")
+        data.html_append('<td width="10px">###</td><td>&nbsp;')
 
         if user.status == "still-in":
-            data.html_append("Status: <b>Still In!!</b> |\n")
+            data.html_append("Status: <b>Still In!!</b> </td>\n")
         else:
-            data.html_append("Status: <b>Eliminated from this round!</b> | \n")
+            data.html_append("Status: <b>Eliminated for now</b> </td> \n")
+    data.html_append("</td></tr></table>")
 
     # data.add_notice("browser cookie='%s'" % data.cookie)
     data.html_append("<br><hr><p>\n")
 
     data.html_append(data.get_notices_as_html())
     data.html_append(data.get_errors_as_html())
-    #data.emit_html()
+
+    # could show a footer here
 
 ######################################################
 
@@ -1094,32 +1117,29 @@ def html_start(data, user, refresh=False):
 # line 2 = trivia controls: start trivia, show_answer, next_question, declare_winners
 # line 3 = rps controls: start rps, show_answer, next_rps, declare_winners
 
-def html_end(data):
-    if data.admin_view:
-        d = {"url": data.url}
-        d["sequence"] = data.sequence
+def show_admin_controls(data):
+    d = {"url": data.url}
+    d["sequence"] = data.sequence
 
-
-        # show admin controls
-        data.html_append("""
-<p><table width="100%%" border=1><tr>
+    # show admin controls
+    data.html_append("""<p>Game controls:<br>
+<table width="100%%" border=1><tr>
 <td><a href="%(url)s">main</a></td>
-<td>sequence=%(sequence)s</td>
 <td><a href="%(url)s?action=undo">undo</a></td>
 <td><a href="%(url)s?action=edit_game">edit game</a></td>
 <td><a href="%(url)s?action=reset">reset</a></td>
 </tr>""" % d)
 
-        ### show trivia controls
-        # make some controls conditional
-        d["question_num"] = str(data.question_num)
-        d["next_link"] = '<a href="%s?action=next_question">next_question</a>' % data.url
-        last_question = max([int(k) for k in tdata.keys()])
+    ### show trivia controls
+    # make some controls conditional
+    d["question_num"] = str(data.question_num)
+    d["next_link"] = '<a href="%s?action=next_question">next_question</a>' % data.url
+    last_question = max([int(k) for k in tdata.keys()])
 
-        if data.question_num >= last_question:
-            # disable 'next question' link on admin page for last question
-            d["next_link"] = "next_question (disabled)"
-        data.html_append("""
+    if data.question_num >= last_question:
+        # disable 'next question' link on admin page for last question
+        d["next_link"] = "next_question (disabled)"
+    data.html_append("""
 <tr>
 <td><a href="%(url)s?action=start_trivia">start_trivia</a></td>
 <td>question #%(question_num)s</td>
@@ -1128,17 +1148,17 @@ def html_end(data):
 <td><a href="%(url)s?action=declare_winners">declare_winners</a></td>
 </tr>""" % d)
 
-        # show rps controls
-        d["round_num"] = str(data.round_num)
-        d["next_link"] = '<a href="%s?action=next_round">next_round</a>' % data.url
+    # show rps controls
+    d["round_num"] = str(data.round_num)
+    d["next_link"] = '<a href="%s?action=next_round">next_round</a>' % data.url
 
-        last_round = max([int(k) for k in rps_data.keys()])
+    last_round = max([int(k) for k in rps_data.keys()])
 
-        if data.round_num >= last_round:
-            # disable 'next round' link on admin page for last question
-            d["next_link"] = "next_question (disabled)"
+    if data.round_num >= last_round:
+        # disable 'next round' link on admin page for last question
+        d["next_link"] = "next_question (disabled)"
 
-        data.html_append("""
+    data.html_append("""
 <tr>
 <td><a href="%(url)s?action=start_rps">start_rps</a></td>
 <td>round #%(round_num)s</td>
@@ -1148,6 +1168,26 @@ def html_end(data):
 </tr><tr>
 <td><a href="%(url)s?action=done">done</a></td>
 </tr></table>""" % d)
+
+
+def html_end(data):
+    if data.admin_view:
+        show_admin_controls(data)
+
+    if data.should_refresh:
+        data.html_append("""
+Page should refresh automatically.
+<p>
+If it doesn't, click <a href="%s">this link</a> to
+proceed when instructed by the game host.
+<HR>\n<p>\n
+""" % data.url)
+    else:
+        if not data.is_form_page:
+            data.html_append("""
+Click <a href="%s">this link</a> to proceed when
+instructed by the game host.<br>
+<HR>\n<p>\n""" % data.url)
 
     data.html_append(data.get_notices_as_html())
     data.html_append(data.get_errors_as_html())
@@ -1395,8 +1435,6 @@ specified.  Please use correct Event Confirmation Number.""" % user_id)
 def show_waiting_page(data):
     data.html_append("""
 <h1 align="center">Waiting for game to begin...</h1>
-<HR>\n<p>\n
-Page will refresh automatically.<br>
 <HR>\n<p>\n
 """)
 
