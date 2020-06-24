@@ -36,6 +36,8 @@ default_suppress_refresh = False
 #default_suppress_refresh = True
 
 data_dir = "/home/tbird/work/games/red-green/rgdata/"
+user_dir = data_dir + "users/"
+still_in_dir = data_dir + "still_in/"
 
 # import the trivia data
 if data_dir not in sys.path:
@@ -202,6 +204,8 @@ class data_class(object):
 
     def add_error_message(self, msg):
         self.err_msg_list.append('<font color="red">ERROR: %s<br></font>' % msg)
+        # let user see error
+        self.suppress_refresh = True
 
     def get_errors_as_html(self):
         html = ""
@@ -243,6 +247,9 @@ class data_class(object):
 
 stub_data = data_class()
 
+
+######################################################
+
 class user_class(object):
     def __init__(self, user_id, alias, name, email, status="still-in"):
         self.user_id = user_id
@@ -258,10 +265,40 @@ class user_class(object):
         line = "%s,%s,%s,%s,%s,%s\n" % (self.user_id, self.alias, self.name,
                                         self.email, self.status,
                                         self.last_answer)
-        user_filepath = data_dir + (user_file_fmt % self.user_id)
+        user_filepath = user_dir + self.user_id
         fd = open(user_filepath, "w")
         fd.write(line)
         fd.close()
+
+    def save_answer(self, data, answer):
+        # put answer in user file (old method)
+        self.last_answer = answer
+        self.write_file()
+
+        # put answer in separate file (new method)
+        answer_dir = get_current_answer_dir(data)
+        if not os.path.isdir(answer_dir):
+            os.mkdir(answer_dir)
+
+        answer_filepath = answer_dir + "/" + self.user_id
+        try:
+            fd = open(answer_filepath, "w")
+            fd.write(answer)
+            fd.close()
+        except:
+            data.add_error_message("could not write to answer file %s" % answer_filepath)
+
+    # FIXTHIS - user.save_status is unused
+    def save_status(self, data, status):
+        # put status in user file (old method)
+        user.status = status
+        self.write_file()
+
+        # still-in status is kept in a different directory (new method)
+        # remove still_in status if we're eliminated
+        status_filepath = still_in_dir + self.user_id
+        if status != "still-in" and os.path.exists(status_filepath):
+            os.remove(status_filepath)
 
 ######################################################
 
@@ -336,45 +373,56 @@ def remove_undo_data_files():
             target = data_dir + filename
             os.unlink(target)
 
+def reset_answers_and_users(data):
+    num_questions = len(tdata)
+    data.phase = "trivia"
+    for qnum in range(num_questions):
+        data.question_num = qnum
+        clear_current_answers(data)
+
+    num_rounds = len(rps_data)
+    data.phase = "rps"
+    for rnum in range(num_rounds):
+        data.round_num = rnum
+        clear_current_answers(data)
+
+    reset_user_status(data)
+
 ######################################################
 
 def get_registered_user_count():
-    file_list = os.listdir(data_dir)
-    count = 0
-    for filename in file_list:
-        m = re.match(user_file_pattern, filename)
-        if m:
-            count += 1
-    return count
+    return len(os.listdir(user_dir))
 
 ######################################################
 
-# returns (user_count, still_in_count, answer_count)
+# returns answer dir, or None if we're in the wrong phase
+def get_current_answer_dir(data):
+    if data.phase == "trivia":
+        return data_dir + "trivia-q%d/" % (data.question_num)
+    elif data.phase == "rps":
+        return data_dir + "rps-r%d/" % (data.round_num)
+    else:
+        return None
+
+######################################################
+
+# returns (user_count, answer_count, still_in_count)
 def get_status_counts(data):
-    file_list = os.listdir(data_dir)
-    user_count = 0
-    still_in_count = 0
-    answer_count = 0
-    for filename in file_list:
-        m = re.match(user_file_pattern, filename)
-        if m:
-            user_count += 1
-            try:
-                fd = open(data_dir + filename, "r")
-                line = fd.readline().strip()
-                juser_id, jalias, jname, jemail, status, last_answer = \
-                        line.split(',', 5)
-                if status == "still-in":
-                    still_in_count += 1
-                if last_answer.strip():
-                    answer_count += 1
-            except:
-                data.add_error_message("Problem reading data from '%s'" % (data_dir + filename))
+    file_list = os.listdir(user_dir)
+    user_count = len(file_list)
+
+    answer_dir = get_current_answer_dir(data)
+    if answer_dir and os.path.exists(answer_dir):
+        answer_count = len(os.listdir(answer_dir))
+    else:
+        answer_count = 0
+
+    still_in_count = len(os.listdir(still_in_dir))
 
     return (user_count, still_in_count, answer_count)
 
 def show_status_counts(data):
-    (user_count, still_in, answers) = get_status_counts(data)
+    (user_count, answers, still_in) = get_status_counts(data)
     data.html_append('Game status:<br><table border="1"><tr>')
     data.html_append('<td>registered users</td>')
     data.html_append('<td>answers</td><td>still-in count</td>')
@@ -397,20 +445,19 @@ def show_status_counts(data):
 
 # returns list of winner tuples (id, alias, name, email)
 def get_winners(data):
-    file_list = os.listdir(data_dir)
+    # scan still_in_dir, and find data for each winner
+    file_list = os.listdir(still_in_dir)
     winners = []
-    for filename in file_list:
-        m = re.match(user_file_pattern, filename)
-        if m:
-            try:
-                fd = open(data_dir + filename, "r")
-                line = fd.readline().strip()
-                user_id, alias, name, email, status, jlast_answer = \
-                    line.split(',', 5)
-                if status == "still-in":
-                    winners.append((user_id, alias, name, email))
-            except:
-                data.add_error_message("Problem reading data from '%s'" % (data_dir + filename))
+    for still_in_user_id in file_list:
+        user_filename = user_file_fmt % still_in_user_id
+        try:
+            fd = open(user_filename, "r")
+            line = fd.readline().strip()
+            user_id, alias, name, email, status, jlast_answer = \
+                line.split(',', 5)
+            winners.append((user_id, alias, name, email))
+        except:
+            data.add_error_message("Problem reading data from '%s'" % (user_filename))
 
     return winners
 
@@ -421,7 +468,7 @@ def save_winners(data):
 
     # increment sequence number
     data.winner_group += 1
-    winner_filepath = data_dir+winner_file_fmt % data.winner_group
+    winner_filepath = data_dir + winner_file_fmt % data.winner_group
 
     winners = get_winners(data)
     try:
@@ -752,7 +799,9 @@ def show_trivia(data, form, user):
     if state == "question" and answer:
         state = "waiting"
 
-    #data.add_error_message("state='%s'" % state)
+    data.add_notice("answer='%s'" % answer)
+    # TRB debug
+    data.add_notice("state='%s'" % state)
 
     if not data.admin_view:
         if state == "question":
@@ -1213,10 +1262,10 @@ def create_user(user_id, alias, name, email):
 
 ######################################################
 
-# returns a 'user' instance, or None if not found
-def read_user(user_id):
+# returns a 'user' instance, or a special "nobody" user if not found
+def read_user(data, user_id):
     # read user file
-    user_filepath = data_dir + (user_file_fmt % user_id)
+    user_filepath = user_dir + user_id
     try:
         fd = open(user_filepath, "r")
         line = fd.readline().strip()
@@ -1225,54 +1274,90 @@ def read_user(user_id):
         return user_class(NOBODY_USER_ID, "not-logged-in", "", "")
 
     user_id, alias, name, email, status, last_answer = line.split(',', 5)
-
     user = user_class(user_id, alias, name, email, status)
+
+    # FIXTHIS - this overrides the last_answer in the user file
+    # should probably eliminate last_answer from user file
+    answer_dir = get_current_answer_dir(data)
+    if answer_dir:
+        data.add_notice("answer_dir: '%s'" % answer_dir)
+        last_answer = ""
+        answer_filepath = answer_dir + user_id
+        data.add_notice("answer_filepath: '%s'" % answer_filepath)
+        if os.path.exists(answer_filepath):
+            data.add_notice("trying to open %s" % answer_filepath)
+            try:
+                fd = open(answer_filepath)
+                last_answer = fd.read()
+                fd.close()
+            except:
+                data.add_error_message("Problem reading answer file %s in read_user()" % answer_filepath)
+        else:
+            data.add_notice("did not find %s" % answer_filepath)
+
+    data.add_notice("Setting user.last_answer to '%s'" % last_answer)
     user.last_answer = last_answer
     return user
 
 ######################################################
 
 def clear_user_answers(data):
-    file_list = os.listdir(data_dir)
-    for filename in file_list:
-        m = re.match(user_file_pattern, filename)
-        if m:
-            try:
-                fd = open(data_dir + filename, "r+")
-                line = fd.readline().strip()
-                user_id, alias, name, email, status, jlast_answer = \
-                    line.split(',', 5)
-                fd.seek(0, os.SEEK_SET)
-                line = "%s,%s,%s,%s,%s,\n" % \
-                    (user_id, alias, name, email, status)
-                fd.write(line)
-                fd.truncate()
-                fd.close()
-            except:
-                data.add_error_message("Problem clearing answer from '%s'" % \
-                    (data_dir + filename))
+    file_list = os.listdir(user_dir)
+    for user_id_filename in file_list:
+        user_filepath = user_dir + user_id_filename
+        try:
+            fd = open(user_filepath, "r+")
+            line = fd.readline().strip()
+            user_id, alias, name, email, status, jlast_answer = \
+                line.split(',', 5)
+            fd.seek(0, os.SEEK_SET)
+            line = "%s,%s,%s,%s,%s,\n" % \
+                (user_id, alias, name, email, status)
+            fd.write(line)
+            fd.truncate()
+            fd.close()
+        except:
+            data.add_error_message("Problem clearing answer from '%s'" % \
+                (user_filepath))
+
+def clear_current_answers(data):
+    # remove answers for current question or round
+    answer_dir = get_current_answer_dir(data)
+    if os.path.isdir(answer_dir):
+        file_list = os.listdir(answer_dir)
+        for filename in file_list:
+            os.remove(answer_dir + filename)
 
 def reset_user_status(data):
-    # change user status back to 'still-in' for all users
-    file_list = os.listdir(data_dir)
-    for filename in file_list:
-        m = re.match(user_file_pattern, filename)
-        if m:
-            try:
-                fd = open(data_dir + filename, "r+")
-                line = fd.readline().strip()
-                user_id, alias, name, email, status, last_answer = \
-                    line.split(',', 5)
-                status = 'still-in'
-                fd.seek(0, os.SEEK_SET)
-                line = "%s,%s,%s,%s,%s,\n" % \
-                    (user_id, alias, name, email, status)
-                fd.write(line)
-                fd.truncate()
-                fd.close()
-            except:
-                data.add_error_message("Problem resetting status in file:" % \
-                    (data_dir + filename))
+    # change user status back to 'still-in' for all users (old method)
+    file_list = os.listdir(user_dir)
+    for user_id_filename in file_list:
+        user_filepath = user_dir + user_id_filename
+        try:
+            fd = open(user_filepath, "r+")
+            line = fd.readline().strip()
+            user_id, alias, name, email, status, last_answer = \
+                line.split(',', 5)
+            status = 'still-in'
+            fd.seek(0, os.SEEK_SET)
+            line = "%s,%s,%s,%s,%s,\n" % \
+                (user_id, alias, name, email, status)
+            fd.write(line)
+            fd.truncate()
+            fd.close()
+        except:
+            data.add_error_message("Problem resetting status in file: %s" % \
+                (user_filepath))
+
+        # add 'still-in' file to still_in directory (new method)
+        try:
+            fd = open(still_in_dir + user_id_filename, "w")
+            fd.write(status)
+            fd.close()
+        except:
+            data.add_error_message("Problem setting status in file: %s" % \
+                (still_in_dir + user_id_filename))
+
 
 ######################################################
 
@@ -1297,26 +1382,32 @@ def update_user_status(data, correct_answer):
     #data.add_error_message("correct_answer=%s" % correct_answer)
     phase = data.phase
 
-    file_list = os.listdir(data_dir)
-    for filename in file_list:
-        m = re.match(user_file_pattern, filename)
-        if m:
-            try:
-                fd = open(data_dir + filename, "r+")
-                line = fd.readline().strip()
-                user_id, alias, name, email, status, last_answer = \
-                    line.split(',', 5)
-                fd.seek(0, os.SEEK_SET)
-                if status == "still-in":
-                    if not is_correct(data, phase, correct_answer, last_answer):
-                        status = "out"
-                line = "%s,%s,%s,%s,%s,%s\n" % \
-                    (user_id, alias, name, email, status, last_answer)
-                fd.write(line)
-                fd.truncate()
-                fd.close()
-            except:
-                data.add_error_message("Problem clearing answer from '%s'" % (data_dir + filename))
+    file_list = os.listdir(user_dir)
+    # FIXTHIS - potentially expensive loop here (but only for admin)
+    for user_id_filename in file_list:
+        user_filepath = user_dir + user_id_filename
+        try:
+            fd = open(user_filepath, "r+")
+            line = fd.readline().strip()
+            user_id, alias, name, email, status, last_answer = \
+                line.split(',', 5)
+            if status == "still-in":
+                if not is_correct(data, phase, correct_answer, last_answer):
+                    status = "out"
+                    fd.seek(0, os.SEEK_SET)
+                    line = "%s,%s,%s,%s,%s,%s\n" % \
+                        (user_id, alias, name, email, status, last_answer)
+                    fd.write(line)
+                    fd.truncate()
+            fd.close()
+        except:
+            data.add_error_message("Problem clearing answer from '%s'" % \
+                (user_filepath))
+
+        # remove still_in status if we're eliminated
+        in_filepath = still_in_dir + user_id_filename
+        if status != "still-in" and os.path.exists(in_filepath):
+            os.remove(in_filepath)
 
 ######################################################
 
@@ -1361,7 +1452,7 @@ def show_register_form(data, user_id, alias, name, email):
 """ % (data.url, user_id, alias, name, email))
 
 def do_register_user(data, form):
-    # collect user data from form
+    # check data while collecting it from form
     error_count = 0
     try:
         user_id = form["user_id"].value
@@ -1403,7 +1494,6 @@ specified.  Please use correct Event Confirmation Number.""" % user_id)
         alias = ""
         error_count += 1
 
-    # FIXTHIS - check form data
     # See if confirmation number is already in use
     # check for blank data
     if not user_id:
@@ -1472,8 +1562,7 @@ def do_action(action, data, form, user):
 
     elif action == "submit_answer":
         answer = form["answer"].value
-        user.last_answer = answer
-        user.write_file()
+        user.save_answer(data, answer)
 
     elif phase == "trivia" and action == "show_answer":
         data.state = "answer"
@@ -1492,6 +1581,7 @@ def do_action(action, data, form, user):
         data.state = "question"
         write_game_data(data)
         clear_user_answers(data)
+        clear_current_answers(data)
 
         # after declaring winners, let everyone back into the game
         if last_state == "winners":
@@ -1520,10 +1610,17 @@ def do_action(action, data, form, user):
 
     elif phase == "rps" and action == "next_round":
         last_state = data.state
-        data.round_num += 1
+        if data.round_num < len(rps_data):
+            data.round_num += 1
+        else:
+            data.add_error_message("""Cannot move to next round.
+                round_num is already %d""" % data.round_num)
+
         data.state = "query"
         write_game_data(data)
         clear_user_answers(data)
+        clear_current_answers(data)
+
         # after declaring winners, let everyone back into the game
         if last_state == "winners":
             reset_user_status(data)
@@ -1548,11 +1645,13 @@ If so, click on the link below to really reset the game:<br>
 
         # remove all undo sequence files
         remove_undo_data_files()
-
         write_game_data(reset_data)
+
+        reset_answers_and_users(data)
+
         data.set_data(reset_data)
         data.suppress_refresh = True
-        data.add_error_message("Click 'main' to continue")
+        data.add_notice("Click 'main' to continue")
 
     elif action == "edit_game":
         # show a form to set values directly
@@ -1674,8 +1773,8 @@ def handle_request(environ, data, form):
         user.logged_in = True
     else:
         if user_id:
-            if os.path.exists(data_dir + (user_file_fmt % user_id)):
-                user = read_user(user_id)
+            if os.path.exists(user_dir + user_id):
+                user = read_user(data, user_id)
                 user.logged_in = True
             else:
                 data.add_error_message("Invalid user_id '%s' specified in cookie" % user_id)

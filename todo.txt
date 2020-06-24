@@ -1,6 +1,7 @@
 To do file for red-green web-based game.
 
 = how to restart =
+== local work ==
  - cd ~/work/games/red-green ; ./start_server
  - from timdesk: chrome: http://localhost:8000/rg.cgi?user_id=one
    - this browser should have the cookie for user_id==one
@@ -9,8 +10,56 @@ To do file for red-green web-based game.
  - from laptop: chrome: http://10.0.1.61:8000/rg.cgi?user_id=ABCDEF
    - this browser should have the cookie for user_id==ABCDEF (alias=two)
 
+== birdcloud work ==
+ - edit rg.cgi
+   - cd ~/work/games/red-green/cgi-bin
+   - vi rg.cgi
+ - browse as admin:
+   - firefox https://birdcloud.org/rg?user_id=admin-game-admin
+ - browse as user:
+   - timdesk: chrome https://birdcloud.org/rg (register as 'one')
+   - laptop: chrome https://birdcloud.org/rg (register as 'two')
+
 = to do =
- - add 'logout' and 'reload' links for users
+ + put user answers in their own file, per question or round
+   + make question# directories
+   - remove answers from user files - ??
+     - eliminate: clear_user_answers()
+     - check places where user file is read/written and remove last_answer field
+     - get rid of last_answer field in:
+       - read_user()
+       - clear_user_answers()
+       - update_user_status()
+       - save_answer()
+
+ + make still_in_dir - to hold still-in status
+   + redundant with still-in field in user file
+   - populate still_in_dir with all user ids on 'next_question' or 'next_round'
+ + make sure users who don't answer a question are eliminated
+   + reset still-in status on 'answer_question" or 'show_result'
+   + modify update_user_status()
+ - remove filematch for user filenames in user_dir
+   - change user filename to user_id
+ - show stats on show_answers and show_results page:
+   - number of users with correct/incorrect answers
+   - number of users eliminated this round, number still-in
+ - move users to faster (in-memory) storage
+   - need to support read from disk, in case script relaunches
+   - avoid reading some or all user data on every client refresh
+     - read data for admin stats using in-memory dictionary
+     - could put user alias in cookie, and only read status from still_in_dir
+   - avoid writing to all user data
+     - remove last_answer (see above)
+     - remove status?? (no, only admin writes to all users)
+
+ - cache pages as static html for faster access
+   - write javascript client, to download form and fill in user_id
+   - make 14 pages per question/round
+     - every combination of 
+   - add 'key' to question data (so users can't guess the next form
+     and load the static html page)
+
+ + add reload ('this link') link for users
  - remove all FIXTHIS items
  - fix all bugs (see below)
  - test it with multiple participants
@@ -29,20 +78,31 @@ To do file for red-green web-based game.
      - if still_in_count > 15, disable declare_winners
      - if state=="question", disable next_question (or highlight show_answer)
      - etc
- - add weird options to rps:
+ - add alternate options to rps:
    - rock, paper, scissors, lizard, spock
    - windows, linux, mac
    - Linus, Greg, Andrew
    - Intel, Arm, RiscV
    - add "flavor" text to rps game
 
+== rejected todos ==
+ - add 'logout' link for users
+
 == fix bugs ==
  - sometimes, the server and browser get stuck
    - I have to ctrl-C the server and restart it
    - not sure if it's related to missing html_start()??
- + players are eliminated even on correct answers
 
 == done ==
+ + players are eliminated even on correct answers
+ + support global suppression of refresh
+   + just provide a link to start
+   + change message about "page will automatically refresh", and provide a link
+ + 2020-06-23 login is not working
+   + click on birdcloud.org/rg, and it doesn't have the user logged in
+     + show messages for account lookup
+     + are we getting the cookie? no
+   + use correct environ dictionary for WSGI
  + resolve refresh issue
    + only do an action once, then change the url for action=none ??
      + why is refresh resending the URL data (?action=next_question)
@@ -59,7 +119,6 @@ To do file for red-green web-based game.
      - show_data (leave this one)
    + call start_response with headers and cookies
    + return html to wsgi, along with headers (cookies), etc.
-
 
 == game outline ==
    - have game phases:
