@@ -21,9 +21,10 @@ To do file for red-green web-based game.
    - laptop: chrome https://birdcloud.org/rg (register as 'two')
 
 = to do =
- + put user answers in their own file, per question or round
-   + make question# directories
-   - remove answers from user files - ??
+ - handle situation where everyone loses
+   - create action for 'reset to last still-in group'
+     - user status field from user data for this?
+ - remove answers from user files - ??
      - eliminate: clear_user_answers()
      - check places where user file is read/written and remove last_answer field
      - get rid of last_answer field in:
@@ -32,14 +33,6 @@ To do file for red-green web-based game.
        - update_user_status()
        - save_answer()
 
- + make still_in_dir - to hold still-in status
-   + redundant with still-in field in user file
-   - populate still_in_dir with all user ids on 'next_question' or 'next_round'
- + make sure users who don't answer a question are eliminated
-   + reset still-in status on 'answer_question" or 'show_result'
-   + modify update_user_status()
- - remove filematch for user filenames in user_dir
-   - change user filename to user_id
  - show stats on show_answers and show_results page:
    - number of users with correct/incorrect answers
    - number of users eliminated this round, number still-in
@@ -94,6 +87,14 @@ To do file for red-green web-based game.
    - not sure if it's related to missing html_start()??
 
 == done ==
+ + 2020-06-24 make still_in_dir - to hold still-in status
+   + redundant with still-in field in user file
+   + populate still_in_dir with all user ids on 'next_question' or 'next_round'
+ + make sure users who don't answer a question are eliminated
+   + reset still-in status on 'answer_question" or 'show_result'
+   + modify update_user_status()
+ + remove filematch for user filenames in user_dir
+   + change user filename to user_id
  + players are eliminated even on correct answers
  + support global suppression of refresh
    + just provide a link to start

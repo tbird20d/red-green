@@ -799,9 +799,8 @@ def show_trivia(data, form, user):
     if state == "question" and answer:
         state = "waiting"
 
-    data.add_notice("answer='%s'" % answer)
-    # TRB debug
-    data.add_notice("state='%s'" % state)
+    # data.add_notice("answer='%s'" % answer)
+    # data.add_notice("state='%s'" % state)
 
     if not data.admin_view:
         if state == "question":
@@ -1280,22 +1279,16 @@ def read_user(data, user_id):
     # should probably eliminate last_answer from user file
     answer_dir = get_current_answer_dir(data)
     if answer_dir:
-        data.add_notice("answer_dir: '%s'" % answer_dir)
         last_answer = ""
         answer_filepath = answer_dir + user_id
-        data.add_notice("answer_filepath: '%s'" % answer_filepath)
         if os.path.exists(answer_filepath):
-            data.add_notice("trying to open %s" % answer_filepath)
             try:
                 fd = open(answer_filepath)
                 last_answer = fd.read()
                 fd.close()
             except:
                 data.add_error_message("Problem reading answer file %s in read_user()" % answer_filepath)
-        else:
-            data.add_notice("did not find %s" % answer_filepath)
 
-    data.add_notice("Setting user.last_answer to '%s'" % last_answer)
     user.last_answer = last_answer
     return user
 
