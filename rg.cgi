@@ -505,10 +505,11 @@ def show_registration(data, user):
 
 def show_question_form(data):
     qnum = data.question_num
+
     try:
         question = tdata[qnum][0]
-        red_text = tdata[qnum][1]
-        green_text = tdata[qnum][2]
+        green_text = tdata[qnum][1]
+        red_text = tdata[qnum][2]
         both_text = tdata[qnum][3]
     except (KeyError, IndexError):
         question = "What is wrong with the game engine?"
@@ -517,14 +518,19 @@ def show_question_form(data):
         both_text = ""
         data.add_error_message("Corrupt trivia data for question %d" % qnum)
 
+    d = {}
+    d["qnum"] = data.question_num
+    d["image_url"] = data.image_url
+    d["question"] = question % d
+
     data.html_append("""
-<h1>Question # %s</h1>
+<h1>Question # %(qnum)s</h1>
 
 
-%s
+%(question)s
 <p>
 <HR>
-""" % (qnum, question))
+""" % d)
 
     data.html_append("""
 Please choose an answer:
@@ -533,11 +539,11 @@ Please choose an answer:
 <ul>
 <table>
   <tr>
-    <td><font color="red">Red</font> : </td>
-    <td><INPUT type="radio" name="answer" value="red">%s</td>
-  </tr><tr>
     <td><font color="green">Green</font> : </td>
     <td><INPUT type="radio" name="answer" value="green">%s</td>
+  </tr><tr>
+    <td><font color="red">Red</font> : </td>
+    <td><INPUT type="radio" name="answer" value="red">%s</td>
 """ % (data.url, red_text, green_text))
 
     if both_text:
@@ -576,25 +582,33 @@ def show_qwaiting_page(data, answer):
         both_text = ""
         data.add_error_message("Corrupt trivia data for question %d" % qnum)
 
+    d = {}
+    d["qnum"] = data.question_num
+    d["image_url"] = data.image_url
+    d["question"] = question % d
+
+    d["red_text"] = red_text
+    d["green_text"] = green_text
+    d["both_text"] = both_text
 
     data.html_append("""
-<h1>Question # %d</h1>
+<h1>Question # %(qnum)s</h1>
 
-%s
+%(question)s
 <p>
 <HR>
-""" % (qnum, question))
+""" % d)
 
-    red_indicator = ""
-    green_indicator = ""
-    both_indicator = ""
+    d["red_indicator"] = ""
+    d["green_indicator"] = ""
+    d["both_indicator"] = ""
 
-    if answer == "red":
-        red_indicator = "<--- Your answer"
-    elif answer == "green":
-        green_indicator = "<--- Your answer"
+    if answer == "green":
+        d["green_indicator"] = "<--- Your answer"
+    elif answer == "red":
+        d["red_indicator"] = "<--- Your answer"
     elif answer == "both":
-        both_indicator = "<--- Your answer"
+        d["both_indicator"] = "<--- Your answer"
     elif answer == "admin-answer":
         pass
     else:
@@ -605,22 +619,22 @@ You chose an answer:
 <ul>
 <table>
   <tr>
-    <td><font color="red">Red</font> : </td>
-    <td>%s</td>
-    <td>%s</td>
-  </tr><tr>
     <td><font color="green">Green</font> : </td>
-    <td>%s</td>
-    <td>%s</td>
-""" % (red_text, red_indicator, green_text, green_indicator))
+    <td>%(green_text)s</td>
+    <td>%(green_indicator)s</td>
+  </tr><tr>
+    <td><font color="red">Red</font> : </td>
+    <td>%(red_text)s</td>
+    <td>%(red_indicator)s</td>
+""" % d)
 
     if both_text:
         data.html_append("""
   </tr><tr>
     <td><font color="red">B</font><font color="green">o</font><font color="red">t</font><font color="green">h</font> : </td>
-    <td>%s</td>
-    <td>%s</td>
-""" % (both_text, both_indicator))
+    <td>%(both_text)s</td>
+    <td>%(both_indicator)s</td>
+""" % d)
 
     # finish the page
     data.html_append("""
@@ -639,8 +653,8 @@ def show_answer_page(data, answer):
     qnum = data.question_num
     try:
         question = tdata[qnum][0]
-        red_text = tdata[qnum][1]
-        green_text = tdata[qnum][2]
+        green_text = tdata[qnum][1]
+        red_text = tdata[qnum][2]
         both_text = tdata[qnum][3]
         answer_code = tdata[qnum][4]
         answer_text = tdata[qnum][5]
@@ -655,43 +669,52 @@ def show_answer_page(data, answer):
 
     #data.add_error_message("answer=%s" % answer)
 
-    data.html_append("""
-<h1>Question # %s</h1>
+    d = {}
+    d["qnum"] = data.question_num
+    d["image_url"] = data.image_url
+    d["question"] = question % d
 
-%s
+    d["red_text"] = red_text
+    d["green_text"] = green_text
+    d["both_text"] = both_text
+
+    data.html_append("""
+<h1>Question # %(qnum)s</h1>
+
+%(question)s
 <p>
 <HR>
-""" % (qnum, question))
+""" % d)
 
-    red_indicator = ""
-    green_indicator = ""
-    both_indicator = ""
+    d["red_indicator"] = ""
+    d["green_indicator"] = ""
+    d["both_indicator"] = ""
 
-    if answer == "red":
-        red_indicator = "<--- Your answer"
-    elif answer == "green":
-        green_indicator = "<--- Your answer"
+    if answer == "green":
+        d["green_indicator"] = "<--- Your answer"
+    elif answer == "red":
+        d["red_indicator"] = "<--- Your answer"
     elif answer == "both":
-        both_indicator = "<--- Your answer"
+        d["both_indicator"] = "<--- Your answer"
     elif answer == "admin-answer":
         pass
     else:
         data.add_error_message("Invalid answer '%s' provided" % answer)
 
-    red_right = ""
-    green_right = ""
-    both_right = ""
+    d["red_right"] = ""
+    d["green_right"] = ""
+    d["both_right"] = ""
 
     answer_list = answer_code.split("|")
     found_right_answer = False
-    if "red" in answer_list:
-        red_right = "<--- The right answer"
-        found_right_answer = True
     if "green" in answer_list:
-        green_right = "<--- The right answer"
+        d["green_right"] = "<--- The right answer"
+        found_right_answer = True
+    if "red" in answer_list:
+        d["red_right"] = "<--- The right answer"
         found_right_answer = True
     if "both" in answer_list:
-        both_right = "<--- The right answer"
+        d["both_right"] = "<--- The right answer"
         found_right_answer = True
 
     if not found_right_answer:
@@ -702,25 +725,25 @@ You chose an answer:
 <ul>
 <table>
   <tr>
-    <td><font color="red">Red</font> : </td>
-    <td>%s</td>
-    <td>%s</td>
-    <td>%s</td>
-  </tr><tr>
     <td><font color="green">Green</font> : </td>
-    <td>%s</td>
-    <td>%s</td>
-    <td>%s</td>
-""" % (red_text, red_indicator, red_right, green_text, green_indicator, green_right))
+    <td>%(green_text)s</td>
+    <td>%(green_indicator)s</td>
+    <td>%(green_right)s</td>
+  </tr><tr>
+    <td><font color="red">Red</font> : </td>
+    <td>%(red_text)s</td>
+    <td>%(red_indicator)s</td>
+    <td>%(red_right)s</td>
+""" % d)
 
     if both_text:
         data.html_append("""
   </tr><tr>
     <td><font color="red">B</font><font color="green">o</font><font color="red">t</font><font color="green">h</font> : </td>
-    <td>%s</td>
-    <td>%s</td>
-    <td>%s</td>
-""" % (both_text, both_indicator, both_right))
+    <td>%(both_text)s</td>
+    <td>%(both_indicator)s</td>
+    <td>%(both_right)s</td>
+""" % d)
 
     # finish the page
     if answer in answer_code.split("|"):
@@ -737,7 +760,7 @@ You chose an answer:
 <p>\n<HR>\n<p>\n
 %s
 <HR>\n<p>\n
-""" % (answer_text, msg))
+""" % (answer_text % d, msg))
 
 ######################################################
 
