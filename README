@@ -36,15 +36,13 @@ Remove winner files in the rgdata directory
 ('make clean' will do this)
 
 == Operating the game ==
-From the admin screen,
+On the admin screen, you will see a menu showing controls for the game.
 
-You can administer the game and display the player view on
-a single machine, using two browsers.
-
-If using this to display a player view for an audience,
-the machine should have the capability to
-show a full-screen browser on one screen (the projected screen),
-and a separate browser on another screen.
+there are 4 main phases:
+ - registration
+ - trivia
+ - rock-paper-scissors
+ - end
 
 The game progresses in 2 sets of rounds, for two different games:
 1 Red-green trivia game
