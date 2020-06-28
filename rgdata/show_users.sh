@@ -1,5 +1,5 @@
 #!/bin/sh
-for f in rg-user*.txt ; do
+for f in users/* ; do
     echo "== $f =="
     cat $f
 done
