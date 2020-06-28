@@ -52,6 +52,7 @@ game_file_fmt = "rgdata-%03d.txt"
 winner_file_fmt = "winners-%02d.txt"
 CGI_URL = "/cgi-bin/rg.cgi"
 WSGI_URL = "/rg"
+IMAGE_URL = "/images"
 
 REFRESH_SECONDS = 4
 
@@ -148,6 +149,8 @@ class data_class(object):
         self.resp_headers = [('Content-type', 'text/html')]
         self.is_wsgi = False
         self.url = CGI_URL
+        self.image_url = IMAGE_URL
+        self.rps_image_size = 80
 
         # here is the game data
         self.game_attr_list = ['sequence', 'winner_group', 'phase',
@@ -246,7 +249,6 @@ class data_class(object):
 ######################################################
 
 stub_data = data_class()
-
 
 ######################################################
 
@@ -841,22 +843,25 @@ def show_trivia(data, form, user):
 
 def show_rps_query_form(data):
     data.html_append("""
-<h1>Round # %d</h1>
+<h1>Round # %(round_num)d</h1>
 
 <h1>Rock, Paper, Scissors</h1>
 <p>
 <HR>
 Please choose an item to "throw":
-<FORM method=post action="%s">
+<FORM method=post action="%(url)s">
 <input type="hidden" name="action" value="submit_answer">
 <ul>
 <table>
   <tr>
     <td><INPUT type="radio" name="answer" value="rock">Rock</td>
+    <td><img src="%(image_url)s/rock.jpg" height="%(rps_image_size)d"></td>
   </tr><tr>
     <td><INPUT type="radio" name="answer" value="paper">Paper</td>
+    <td><img src="%(image_url)s/paper.jpg" height="%(rps_image_size)d"></td>
   </tr><tr>
     <td><INPUT type="radio" name="answer" value="scissors">Scissors</td>
+    <td><img src="%(image_url)s/scissors.jpg" height="%(rps_image_size)d"></td>
   </tr><tr>
     <td><input type="submit" name="submit" value="Submit"></td>
     <td></td>
@@ -865,7 +870,7 @@ Please choose an item to "throw":
 </ul>
 <FORM>
 <p>
-""" % (data.round_num, data.url))
+""" % data)
     data.is_form_page = True
 
 ######################################################
@@ -878,20 +883,24 @@ def show_rps_waiting_page(data, answer):
 <HR>
 """ % (data.round_num))
 
-    rock_indicator = ""
-    paper_indicator = ""
-    scissors_indicator = ""
+    d = {}
+    d["rock_indicator"] = ""
+    d["paper_indicator"] = ""
+    d["scissors_indicator"] = ""
 
     if answer == "rock":
-        rock_indicator = "<--- Your throw"
+        d["rock_indicator"] = "<--- Your throw"
     elif answer == "paper":
-        paper_indicator = "<--- Your throw"
+        d["paper_indicator"] = "<--- Your throw"
     elif answer == "scissors":
-        scissors_indicator = "<--- Your throw"
+        d["scissors_indicator"] = "<--- Your throw"
     elif answer == "admin-answer":
         pass
     else:
         data.add_error_message("Invalid guess '%s' provided" % answer)
+
+    d["image_url"] = data.image_url
+    d["rps_image_size"] = data.rps_image_size
 
     data.html_append("""
 You chose to "throw":
@@ -899,18 +908,21 @@ You chose to "throw":
 <table>
   <tr>
     <td>Rock : </td>
-    <td>%s</td>
+    <td><img src="%(image_url)s/rock.jpg" height="%(rps_image_size)d"></td>
+    <td>%(rock_indicator)s</td>
   </tr><tr>
     <td>Paper : </td>
-    <td>%s</td>
+    <td><img src="%(image_url)s/paper.jpg" height="%(rps_image_size)d"></td>
+    <td>%(paper_indicator)s</td>
   </tr><tr>
     <td>Scissors : </td>
-    <td>%s</td>
+    <td><img src="%(image_url)s/scissors.jpg" height="%(rps_image_size)d"></td>
+    <td>%(scissors_indicator)s</td>
   </tr>
 </table>
 </ul>
 <p>
-""" % (rock_indicator, paper_indicator, scissors_indicator))
+""" % d)
 
     # finish the page
     data.html_append("""
@@ -933,33 +945,38 @@ def show_result_page(data, answer):
 <HR>
 """ % (data.round_num))
 
-    rock_indicator = ""
-    paper_indicator = ""
-    scissors_indicator = ""
+    d = {}
+
+    d["rock_indicator"] = ""
+    d["paper_indicator"] = ""
+    d["scissors_indicator"] = ""
 
     if answer == "rock":
-        rock_indicator = "<--- Your guess"
+        d["rock_indicator"] = "<--- Your guess"
     elif answer == "paper":
-        paper_indicator = "<--- Your guess"
+        d["paper_indicator"] = "<--- Your guess"
     elif answer == "scissors":
-        scissors_indicator = "<--- Your guess"
+        d["scissors_indicator"] = "<--- Your guess"
     elif answer == "admin-answer":
         pass
     else:
         data.add_error_message("Invalid guess '%s' provided" % answer)
 
-    rock_host = ""
-    paper_host = ""
-    scissors_host = ""
+    d["rock_host"] = ""
+    d["paper_host"] = ""
+    d["scissors_host"] = ""
 
     if host_throw == "rock":
-        rock_host = "<--- The host threw"
+        d["rock_host"] = "<--- The host threw"
     elif host_throw == "paper":
-        paper_host = "<--- The host threw"
+        d["paper_host"] = "<--- The host threw"
     elif host_throw == "scissors":
-        scissors_host = "<--- The host threw"
+        d["scissors_host"] = "<--- The host threw"
     else:
         data.add_error_message("Invalid host throw '%s'!!" % host_throw)
+
+    d["image_url"] = data.image_url
+    d["rps_image_size"] = data.rps_image_size
 
     data.html_append("""
 You chose a "throw":
@@ -967,22 +984,24 @@ You chose a "throw":
 <table>
   <tr>
     <td>Rock : </td>
-    <td>%s</td>
-    <td>%s</td>
+    <td><img src="%(image_url)s/rock.jpg" height="%(rps_image_size)d"></td>
+    <td>%(rock_indicator)s</td>
+    <td>%(rock_host)s</td>
   </tr><tr>
     <td>Paper : </td>
-    <td>%s</td>
-    <td>%s</td>
+    <td><img src="%(image_url)s/paper.jpg" height="%(rps_image_size)d"></td>
+    <td>%(paper_indicator)s</td>
+    <td>%(paper_host)s</td>
   </tr><tr>
     <td>Scissors : </td>
-    <td>%s</td>
-    <td>%s</td>
+    <td><img src="%(image_url)s/scissors.jpg" height="%(rps_image_size)d"></td>
+    <td>%(scissors_indicator)s</td>
+    <td>%(scissors_host)s</td>
   </tr>
 </table>
 </ul>
 <p>
-""" % (rock_indicator, rock_host, paper_indicator, paper_host,
-       scissors_indicator, scissors_host))
+""" % d)
 
     # finish the page
     # this will have to be made generic for alternate items
