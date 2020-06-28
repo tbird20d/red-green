@@ -14,17 +14,53 @@ To do file for red-green web-based game.
  - edit rg.cgi
    - cd ~/work/games/red-green/cgi-bin
    - vi rg.cgi
+   - ./stop-uwsgi
+   - (in other window) ./start-uwsgi
  - browse as admin:
    - firefox https://birdcloud.org/rg?user_id=admin-game-admin
  - browse as user:
    - timdesk: chrome https://birdcloud.org/rg (register as 'one')
    - laptop: chrome https://birdcloud.org/rg (register as 'two')
 
+== closinggame.net work ==
+ - start server and wsgi gateway
+   - systemctl start nginx (if not already running)
+   - cd ~/work/games/red-green
+   - ./start-uwsgi
+ - edit rg.cgi
+   - cd ~/work/games/red-green
+   - vi rg.cgi
+ - browse as admin:
+   - firefox https://closinggame.net/rg?user_id=admin-game-admin
+ - browse as user:
+   - timdesk: chrome https://closinggame.net/rg (register as 'one')
+   - laptop: chrome https://closinggame.net/rg (register as 'two')
+
 = to do =
- - handle situation where everyone loses
-   - create action for 'reset to last still-in group'
-     - user status field from user data for this?
- - remove answers from user files - ??
+ - add real questions to trivia.py
+   - add images to image directory
+   - allow html to reference images
+
+ - work on performance:
+   - change to use UNIX socket, instead of 127.0.0.1:3031, for interface between
+     nginx and uwsgi
+   - use threading in python and rg.cgi
+   - use static pages
+     - generate static pages for each state transition
+     - Javascript to load static page
+       - do minimal processing in rg.cgi, and send back user_id, still_in status, and
+         name of static page to load
+       - Javascript should load static page via nginx
+     - make 14 pages per question/round
+       - every combination of 
+   - add 'key' to question data (so users can't guess the next form
+     and load the static html page)
+   - don't import stuff that's not needed
+     - only import valid_user_ids on registration
+     - only import trivia or rps when being used
+   - don't have uwsgi log to terminal window
+     - send log to a file
+   - remove answers from user files - ??
      - eliminate: clear_user_answers()
      - check places where user file is read/written and remove last_answer field
      - get rid of last_answer field in:
@@ -32,32 +68,22 @@ To do file for red-green web-based game.
        - clear_user_answers()
        - update_user_status()
        - save_answer()
+   - move users to faster (in-memory) storage
+     - need to support read from disk, in case script relaunches
+     - avoid reading some or all user data on every client refresh
+       - read data for admin stats using in-memory dictionary
+       - could put user alias in cookie, and only read status from still_in_dir
+     - avoid writing to all user data
+       - remove last_answer (see above)
+       - remove status?? (no, only admin writes to all users)
 
  - show stats on show_answers and show_results page:
    - number of users with correct/incorrect answers
    - number of users eliminated this round, number still-in
- - move users to faster (in-memory) storage
-   - need to support read from disk, in case script relaunches
-   - avoid reading some or all user data on every client refresh
-     - read data for admin stats using in-memory dictionary
-     - could put user alias in cookie, and only read status from still_in_dir
-   - avoid writing to all user data
-     - remove last_answer (see above)
-     - remove status?? (no, only admin writes to all users)
-
- - cache pages as static html for faster access
-   - write javascript client, to download form and fill in user_id
-   - make 14 pages per question/round
-     - every combination of 
-   - add 'key' to question data (so users can't guess the next form
-     and load the static html page)
-
- + add reload ('this link') link for users
+ - show number of each answer on the qwaiting and rwaiting pages, for admin
  - remove all FIXTHIS items
  - fix all bugs (see below)
  - test it with multiple participants
- - add real questions to trivia.py
- - add number of questions and number of rounds to html_end status
  - add message when user is eliminated
  - make the player screen pretty
    - change page colors
@@ -77,9 +103,22 @@ To do file for red-green web-based game.
    - Linus, Greg, Andrew
    - Intel, Arm, RiscV
    - add "flavor" text to rps game
+ - handle situation where everyone is eliminated
+   - create action for 'reset to last still-in group'
+     - user status field from user data for this?
+   - save still-in on 'next question'
+     - erase all files in still_in_backup
+     - copy all files from still_in dir to still_in_backup
+   - make action 'restore_still_in"
+     - copy all files from still_in_backup to still_in dir
 
 == rejected todos ==
  - add 'logout' link for users
+ - prevent someone from taking over another person's session
+   - all you have to do is know the confirmation number, and then you put it
+     in a cookie as your user_id, and it causes mayhem
+   - could validate IP address?
+   - too much for now
 
 == fix bugs ==
  - sometimes, the server and browser get stuck
@@ -87,9 +126,28 @@ To do file for red-green web-based game.
    - not sure if it's related to missing html_start()??
 
 == done ==
+ + 2020-06-27
+ + add images to rps game
+   + make images dir in web directory
+   + put images there
+   + reference them in html
+     + show_rps_query_form
+     + show_rps_waiting_page
+     + show_result_page
+ + add number of questions and number of rounds to html_end status
+ + create question dir when admin starts question or rps round
+ + handle situation where someone joins late
+   + if someone registers, and the phase is not "registration", then 
+     start them in "out" state
+ + make script work on closinggame.net
+   + start uwsgi manually 
+     + write start-uwsgi script
+     + write stop-uwsgi script
+     + write reload-nginx script
  + 2020-06-24 make still_in_dir - to hold still-in status
    + redundant with still-in field in user file
    + populate still_in_dir with all user ids on 'next_question' or 'next_round'
+ + add reload ('this link') link for users
  + make sure users who don't answer a question are eliminated
    + reset still-in status on 'answer_question" or 'show_result'
    + modify update_user_status()
