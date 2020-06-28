@@ -49,9 +49,6 @@ from rps import rps_data
 game_file_pattern = "rgdata-([0-9][0-9][0-9]).txt"
 game_file_fmt = "rgdata-%03d.txt"
 
-user_file_pattern = "rg-user-.*[.]txt"
-user_file_fmt = "rg-user-%s.txt"
-
 winner_file_fmt = "winners-%02d.txt"
 CGI_URL = "/cgi-bin/rg.cgi"
 WSGI_URL = "/rg"
@@ -77,6 +74,9 @@ NOBODY_USER_ID = "nobody-not-logged-in"
 #    5) answer text (explanation)
 #
 # The answer code can be "red", "green", or "both".
+# The answer can consist of multiple answers (for fake-out or lenient questions)
+# Multiple correct answers are separated by a vertical bar ('|')
+# example: "red|green"
 #
 # {1: ["question #1", "true", "false", "" "red", "answer #1 because..."],
 #  2: ["question #2", "less than 10", "10 or more", "", "green", "answer #2"],
@@ -419,10 +419,14 @@ def get_status_counts(data):
 
     still_in_count = len(os.listdir(still_in_dir))
 
-    return (user_count, still_in_count, answer_count)
+    return (user_count, answer_count, still_in_count)
 
 def show_status_counts(data):
     (user_count, answers, still_in) = get_status_counts(data)
+
+    last_question = len(tdata.keys())
+    last_round = len(rps_data.keys())
+
     data.html_append('Game status:<br><table border="1"><tr>')
     data.html_append('<td>registered users</td>')
     data.html_append('<td>answers</td><td>still-in count</td>')
@@ -437,8 +441,8 @@ def show_status_counts(data):
     data.html_append('<td align="center">%d</td>' % data.sequence)
     data.html_append('<td align="center">"%s"</td>' % data.phase)
     data.html_append('<td align="center">"%s"</td>' % data.state)
-    data.html_append('<td align="center">%d</td>' % data.question_num)
-    data.html_append('<td align="center">%d</td>' % data.round_num)
+    data.html_append('<td align="center">%d of %d</td>' % (data.question_num, last_question))
+    data.html_append('<td align="center">%d of %d</td>' % (data.round_num, last_round))
     data.html_append('</tr></table>')
 
 ######################################################
@@ -449,16 +453,17 @@ def get_winners(data):
     file_list = os.listdir(still_in_dir)
     winners = []
     for still_in_user_id in file_list:
-        user_filename = user_file_fmt % still_in_user_id
+        user_filepath = user_dir + still_in_user_id
         try:
-            fd = open(user_filename, "r")
+            fd = open(user_filepath, "r")
             line = fd.readline().strip()
             user_id, alias, name, email, status, jlast_answer = \
                 line.split(',', 5)
             winners.append((user_id, alias, name, email))
         except:
-            data.add_error_message("Problem reading data from '%s'" % (user_filename))
+            data.add_error_message("Problem reading data from '%s'" % (user_filepath))
 
+    winners.sort()
     return winners
 
 ######################################################
@@ -492,7 +497,7 @@ def show_registration(data, user):
         data.is_form_page = True
     else:
         html_start(data, user, True)
-        show_waiting_page(data)
+        show_waiting_to_begin_page(data)
 
 ######################################################
 
@@ -626,9 +631,6 @@ You chose an answer:
 <HR>\n<p>\n
 """)
 
-    if data.admin_view:
-        show_status_counts(data)
-
 ######################################################
 
 def show_answer_page(data, answer):
@@ -678,13 +680,19 @@ def show_answer_page(data, answer):
     green_right = ""
     both_right = ""
 
-    if answer_code == "red":
+    answer_list = answer_code.split("|")
+    found_right_answer = False
+    if "red" in answer_list:
         red_right = "<--- The right answer"
-    elif answer_code == "green":
+        found_right_answer = True
+    if "green" in answer_list:
         green_right = "<--- The right answer"
-    elif answer_code == "both":
+        found_right_answer = True
+    if "both" in answer_list:
         both_right = "<--- The right answer"
-    else:
+        found_right_answer = True
+
+    if not found_right_answer:
         data.add_error_message("Invalid answer_code '%s'!!" % answer_code)
 
     data.html_append("""
@@ -713,7 +721,7 @@ You chose an answer:
 """ % (both_text, both_indicator, both_right))
 
     # finish the page
-    if answer == answer_code:
+    if answer in answer_code.split("|"):
         msg = "<h2>You got it right!!</h2>"
     else:
         msg = "Sorry - you didn't get it right!!"
@@ -728,9 +736,6 @@ You chose an answer:
 %s
 <HR>\n<p>\n
 """ % (answer_text, msg))
-
-    if data.admin_view:
-        show_status_counts(data)
 
 ######################################################
 
@@ -758,9 +763,7 @@ Here is the list of winners:
     data.html_append("</ul>\n<hr>\n<p>\n")
 
 
-    if data.admin_view:
-        show_status_counts(data)
-    else:
+    if not data.admin_view:
         if not is_winner:
             data.html_append("Sorry - you did not win this time.\n<p>\n")
 
@@ -891,7 +894,7 @@ def show_rps_waiting_page(data, answer):
         data.add_error_message("Invalid guess '%s' provided" % answer)
 
     data.html_append("""
-You chose a "throw":
+You chose to "throw":
 <ul>
 <table>
   <tr>
@@ -915,9 +918,6 @@ You chose a "throw":
 <h1 align="center">Waiting for answer</h1>
 <HR>\n<p>\n
 """)
-
-    if data.admin_view:
-        show_status_counts(data)
 
 ######################################################
 
@@ -1004,8 +1004,6 @@ You chose a "throw":
 <p><HR>\n<p>\n
 """ % msg)
 
-    if data.admin_view:
-        show_status_counts(data)
 
 ######################################################
 
@@ -1181,45 +1179,81 @@ def show_admin_controls(data):
     ### show trivia controls
     # make some controls conditional
     d["question_num"] = str(data.question_num)
-    d["next_link"] = '<a href="%s?action=next_question">next_question</a>' % data.url
-    last_question = max([int(k) for k in tdata.keys()])
 
+    # default to no link for some controls
+    d["start_trivia"] = "start_trivia"
+    d["show_answer"] = "show_answer"
+    d["next_question"] = 'next question'
+    d["declare_winners"] = '<a href="%(url)s?action=declare_winners">declare_winners</a>' % d
+
+    if data.phase == "registration":
+        d["start_trivia"] = '<a href="%(url)s?action=start_trivia">start_trivia</a>' % d
+
+    if data.phase == "trivia":
+        if data.state == "question" or data.state == "waiting":
+            d["show_answer"] = '<a href="%(url)s?action=show_answer">show_answer</a>' % d
+        if data.state == "answer" or data.state == "winners":
+            d["next_question"] = '<a href="%(url)s?action=next_question">next_question</a>' % d
+
+    last_question = max([int(k) for k in tdata.keys()])
     if data.question_num >= last_question:
         # disable 'next question' link on admin page for last question
-        d["next_link"] = "next_question (disabled)"
+        d["next_question"] = "next_question (disabled)"
+
+    if data.state == "winners":
+        d["declare_winners"] = "declare_winners"
+
     data.html_append("""
 <tr>
-<td><a href="%(url)s?action=start_trivia">start_trivia</a></td>
+<td>%(start_trivia)s</td>
 <td>question #%(question_num)s</td>
-<td><a href="%(url)s?action=show_answer">show_answer</a></td>
-<td>%(next_link)s</td>
-<td><a href="%(url)s?action=declare_winners">declare_winners</a></td>
+<td>%(show_answer)s</td>
+<td>%(next_question)s</td>
+<td>%(declare_winners)s</a></td>
 </tr>""" % d)
 
     # show rps controls
     d["round_num"] = str(data.round_num)
-    d["next_link"] = '<a href="%s?action=next_round">next_round</a>' % data.url
+
+    d["start_rps"] = 'start_rps'
+    d["show_result"] = 'show_result'
+    d["next_round"] = 'next_round'
+
+    if data.phase == "trivia":
+        d["start_rps"] = '<a href="%(url)s?action=start_rps">start_rps</a>' % d
+
+    if data.phase == "rps":
+        if data.state == "query" or data.state == "waiting":
+            d["show_result"] = '<a href="%(url)s?action=show_result">show_result</a>' % d
+        if data.state == "result" or data.state == "winners":
+            d["next_round"] = '<a href="%(url)s?action=next_round">next_round</a>' % d
+
 
     last_round = max([int(k) for k in rps_data.keys()])
-
     if data.round_num >= last_round:
         # disable 'next round' link on admin page for last question
-        d["next_link"] = "next_question (disabled)"
+        d["next_round"] = "next_round (disabled)"
+
+    if data.phase == "rps":
+        d["done"] = '<a href="%(url)s?action=done">done</a>' % d 
+    else:
+        d["done"] = 'done'
 
     data.html_append("""
 <tr>
-<td><a href="%(url)s?action=start_rps">start_rps</a></td>
+<td>%(start_rps)s</a></td>
 <td>round #%(round_num)s</td>
-<td><a href="%(url)s?action=show_result">show_result</a></td>
-<td>%(next_link)s</td>
-<td><a href="%(url)s?action=declare_winners">declare_winners</a></td>
+<td>%(show_result)s</a></td>
+<td>%(next_round)s</td>
+<td>%(declare_winners)s</a></td>
 </tr><tr>
-<td><a href="%(url)s?action=done">done</a></td>
+<td>%(done)s</a></td>
 </tr></table>""" % d)
 
 
 def html_end(data):
     if data.admin_view:
+        show_status_counts(data)
         show_admin_controls(data)
 
     if data.should_refresh:
@@ -1313,6 +1347,8 @@ def clear_user_answers(data):
             data.add_error_message("Problem clearing answer from '%s'" % \
                 (user_filepath))
 
+######################################################
+
 def clear_current_answers(data):
     # remove answers for current question or round
     answer_dir = get_current_answer_dir(data)
@@ -1320,6 +1356,10 @@ def clear_current_answers(data):
         file_list = os.listdir(answer_dir)
         for filename in file_list:
             os.remove(answer_dir + filename)
+    else:
+        os.mkdir(answer_dir)
+
+######################################################
 
 def reset_user_status(data):
     # change user status back to 'still-in' for all users (old method)
@@ -1356,7 +1396,7 @@ def reset_user_status(data):
 
 def is_correct(data, phase, correct_answer, answer):
     if phase == "trivia":
-        return answer == correct_answer
+        return answer in correct_answer.split("|")
 
     if phase == "rps":
         host_throw = correct_answer
@@ -1467,10 +1507,10 @@ specified.  Please use correct Event Confirmation Number.""" % user_id)
         error_count += 1
 
     try:
-        email = form["email"].value
+        alias = form["alias"].value
     except:
-        data.add_error_message("Missing form value for action 'E-mail'")
-        email = ""
+        data.add_error_message("Missing form value for action 'Alias'")
+        alias = ""
         error_count += 1
 
     try:
@@ -1481,16 +1521,28 @@ specified.  Please use correct Event Confirmation Number.""" % user_id)
         error_count += 1
 
     try:
-        alias = form["alias"].value
+        email = form["email"].value
     except:
-        data.add_error_message("Missing form value for action 'Alias'")
-        alias = ""
+        data.add_error_message("Missing form value for action 'E-mail'")
+        email = ""
         error_count += 1
 
     # See if confirmation number is already in use
     # check for blank data
     if not user_id:
         data.add_error_message("Missing Event Confirmation Number")
+        error_count += 1
+
+    if not alias:
+        data.add_error_message("Missing Account Name" )
+        error_count += 1
+
+    if not name:
+        data.add_error_message("Missing Real Name")
+        error_count += 1
+
+    if not email:
+        data.add_error_message("Missing E-mail")
         error_count += 1
 
     if error_count:
@@ -1506,21 +1558,30 @@ specified.  Please use correct Event Confirmation Number.""" % user_id)
         user = create_user(user_id, alias, name, email)
         user.logged_in = True
 
+    # start late users as eliminated
+    # this prevents users from leaving the game and rejoining, in order
+    # to change their status
+    if data.state != "registration":
+        user.status = "out"
+        user.write_file()
+
+
     # set cookie expiration for 10 days (in seconds)
     data.cookie = "Set-Cookie: user_id=%s; Max-Age=864000;" % user_id
 
     # show - Success, waiting for game to start page
     html_start(data, user, True)
     data.html_append("Successfuly registered user: %s\n<p>\n" % alias)
-    show_waiting_page(data)
+    show_waiting_to_begin_page(data)
     return
 
-def show_waiting_page(data):
+def show_waiting_to_begin_page(data):
     data.html_append("""
 <h1 align="center">Waiting for game to begin...</h1>
 <HR>\n<p>\n
 """)
 
+    # FIXTHIS - only show if data.admin_view:  ??
     user_count = get_registered_user_count()
     data.html_append("Number of registered players=%d\n<p>" % user_count)
 
@@ -1554,8 +1615,14 @@ def do_action(action, data, form, user):
         reset_user_status(data)
 
     elif action == "submit_answer":
-        answer = form["answer"].value
-        user.save_answer(data, answer)
+        try:
+            answer = form["answer"].value
+        except KeyError:
+            data.add_error_message("Form was missing answer")
+            answer = ""
+
+        if answer:
+            user.save_answer(data, answer)
 
     elif phase == "trivia" and action == "show_answer":
         data.state = "answer"
@@ -1818,7 +1885,7 @@ def application(environ, start_response):
 
     # convert data.cookie to WSGI resp_headers format (ie a tuple)
     if data.cookie:
-        set_cookie, cookie = data.cookie.split(":")
+        set_cookie, cookie = data.cookie.split(":", 1)
         data.resp_headers.append((set_cookie, cookie))
 
     start_response(data.resp_status, data.resp_headers)
