@@ -1,0 +1,25 @@
+#!/usr/bin/python
+#
+# generate-rps-data - create data suitable for rock-paper-scissors portion
+#   of the red-green game
+#
+# use with: generate-rps-data >rps.py
+#
+
+import random
+
+print("""# rps data for the rock-paper-scissors portion of the red-green game
+# to be imported by rg.cgi
+# this file represents the "host throw" for each numbered round
+
+rps_data = {""")
+
+throws = ["rock", "paper", "scissors"]
+
+for i in range(50):
+    n = random.randint(0, 2)
+    rps = throws[n]
+    print('    %d: "%s",' % (i,rps))
+
+print("}")
+
