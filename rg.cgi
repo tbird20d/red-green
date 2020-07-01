@@ -166,7 +166,7 @@ class data_class(object):
         self.game_attr_ints = ['sequence', 'winner_group',
                                'question_num', 'round_num']
         self.sequence = 0
-        self.winner_group = 1
+        self.winner_group = 0
         self.phase = "registration"  # registration, trivia, rps, done
         self.state = "question"  # question, wiating, answer, winners
            # or, for rps: query, waiting, result, winners
@@ -1773,6 +1773,7 @@ def do_action(action, data, form, user):
         write_game_data(data)
         clear_user_answers(data)
         reset_user_status(data)
+        save_still_ins()
 
     elif action == "submit_answer":
         try:
