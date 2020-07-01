@@ -31,14 +31,16 @@ cgitb.enable()
 show_data = False
 user_show_data = False
 
-# keep pages from automatically refreshing, while I'm debugging
-default_suppress_refresh = False
-#default_suppress_refresh = True
-
 data_dir = "/home/tbird/work/games/red-green/rgdata/"
 user_dir = data_dir + "users/"
 still_in_dir = data_dir + "still_in/"
 still_in_backup = data_dir + "still_in_backup/"
+
+# keep pages from automatically refreshing, while I'm debugging
+rfile =  data_dir + "suppress_refresh"
+default_suppress_refresh = os.path.exists(rfile)
+#default_suppress_refresh = True
+
 
 # STATUS consts
 STILL_IN = "still-in"
@@ -59,7 +61,7 @@ CGI_URL = "/cgi-bin/rg.cgi"
 WSGI_URL = "/rg"
 IMAGE_URL = "/images"
 
-REFRESH_SECONDS = 4
+REFRESH_SECONDS = 2
 
 # To login as administrator, use the url:
 # http://localhost:8000/rg.cgi?user_id=admin-game-admin
@@ -147,6 +149,7 @@ class data_class(object):
         self.admin_view = False
         self.notice_list = []
         self.suppress_refresh = default_suppress_refresh
+        self.refresh_count = REFRESH_SECONDS
         self.is_form_page = False
         self.header_shown = False
         self.cookie = ""
@@ -212,8 +215,8 @@ class data_class(object):
 
     def add_error_message(self, msg):
         self.err_msg_list.append('<font color="red">ERROR: %s<br></font>' % msg)
-        # let user see error
-        self.suppress_refresh = True
+        # give time for user to see error
+        self.refresh_count = 10
 
     def get_errors_as_html(self):
         html = ""
@@ -300,7 +303,7 @@ class user_class(object):
                   "Maybe you got behind in the game??")
                 return
 
-        else:
+        elif data.phase == "rps":
             try:
                 rnum = form["rnum"].value
             except:
@@ -320,6 +323,12 @@ class user_class(object):
                   "Discarding answer for this question. " + \
                   "Maybe you got behind in the game??")
                 return
+        else:
+            data.add_error_message(
+              "I'm sorry - you missed your opportunity to respond<br>" + \
+              "Discarding answer for this question. " + \
+              "Maybe the game is over or restarted??")
+            return
 
         # put answer in user file (old method)
         self.last_answer = answer
@@ -436,9 +445,12 @@ def reset_answers_and_users(data):
         data.round_num = rnum
         clear_current_answers(data)
 
-    reset_user_status(data)
+    # erase all old still_in files
+    file_list = os.listdir(still_in_dir)
+    for f in file_list:
+        os.remove(still_in_dir + f)
 
-######################################################
+    reset_user_status(data)
 
 def get_registered_user_count():
     return len(os.listdir(user_dir))
@@ -1025,11 +1037,11 @@ def show_result_page(data, answer):
     d["scissors_indicator"] = ""
 
     if answer == "rock":
-        d["rock_indicator"] = "<--- Your guess"
+        d["rock_indicator"] = "<--- Your throw"
     elif answer == "paper":
-        d["paper_indicator"] = "<--- Your guess"
+        d["paper_indicator"] = "<--- Your throw"
     elif answer == "scissors":
-        d["scissors_indicator"] = "<--- Your guess"
+        d["scissors_indicator"] = "<--- Your throw"
     elif answer == "admin-answer":
         pass
     else:
@@ -1211,7 +1223,7 @@ def html_start(data, user, refresh=False):
     data.should_refresh = False
     if refresh and not data.suppress_refresh:
         refresh_str = '<meta http-equiv="refresh" content="%d; url=%s"/>' % \
-            (REFRESH_SECONDS, data.url)
+            (data.refresh_count, data.url)
         data.should_refresh = True
     else:
         refresh_str = ''
@@ -1700,10 +1712,16 @@ specified.  Please use correct Event Confirmation Number.""" % user_id)
         user = create_user(user_id, alias, name, email)
         user.logged_in = True
 
-    # start late users as eliminated
-    # this prevents users from leaving the game and rejoining, in order
-    # to change their status
-    if data.phase != "registration":
+
+    if data.phase == "registration":
+        # start user as still-in the game
+        fd = open(still_in_dir + user_id,"w")
+        fd.write(STILL_IN)
+        fd.close()
+    else:
+        # otherwise, start user out of the game
+        # this prevents users from leaving the game and rejoining, in order
+        # to change their status
         user.status = OUT
         user.write_file()
 
@@ -1755,7 +1773,6 @@ def do_action(action, data, form, user):
         write_game_data(data)
         clear_user_answers(data)
         reset_user_status(data)
-        save_still_ins()
 
     elif action == "submit_answer":
         try:
@@ -1931,10 +1948,16 @@ If so, click on the link below to really undo 1 game step:<br>
     elif action == "toggle_refresh":
         global default_suppress_refresh
 
-        if default_suppress_refresh:
+        if os.path.exists(rfile):
+            os.remove(rfile)
             default_suppress_refresh = False
+            data.add_notice("removed %s and set 'default_suppress_refresh' to False" % rfile)
         else:
+            fd = open(rfile, "w")
+            fd.write("suppress")
+            fd.close()
             default_suppress_refresh = True
+            data.add_notice("created %s and set 'default_suppress_refresh' to True" % rfile)
 
     else:
         data.add_error_message("""Unknown action: '%s'
