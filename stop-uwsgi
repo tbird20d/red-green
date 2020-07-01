@@ -1,0 +1,9 @@
+#!/bin/sh
+#
+# stop-uwsgi - script to stop uwsgi gateway
+
+# get pid of process on port 3031
+pid="$(lsof -t -i tcp:3031)"
+echo "Found process $pid using port 3031"
+echo "Sending INT signal now"
+kill -INT $pid

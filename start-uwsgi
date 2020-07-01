@@ -1,0 +1,5 @@
+#!/bin/sh
+#
+# start-uwsgi - script to start uwsgi gateway
+
+uwsgi  --socket 127.0.0.1:3031 --master --plugin python --wsgi-file /home/tbird/work/games/red-green/rg.cgi

@@ -1,0 +1,5 @@
+#!/bin/sh
+# 
+# reload-nginx - reload nginx after config change or uwsgi restart
+
+sudo systemctl reload nginx
