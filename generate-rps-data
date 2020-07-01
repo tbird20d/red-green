@@ -16,7 +16,7 @@ rps_data = {""")
 
 throws = ["rock", "paper", "scissors"]
 
-for i in range(50):
+for i in range(1,50):
     n = random.randint(0, 2)
     rps = throws[n]
     print('    %d: "%s",' % (i,rps))
