@@ -37,14 +37,19 @@ To do file for red-green web-based game.
    - laptop: chrome https://closinggame.net/rg (register as 'two')
 
 = to do =
- - add real questions to trivia.py
-   - add images to image directory
-   - allow html to reference images
+ - test features
+   - make sure all images load
+   - not sure what's up with mslogo.jpg
+
+ - make list of actions that need to be done during game:
+   - have to remind people to refresh, if they get an error message
+     - maybe should just change refresh to 10 seconds?
 
  - work on performance:
    - change to use UNIX socket, instead of 127.0.0.1:3031, for interface between
      nginx and uwsgi
-   - use threading in python and rg.cgi
+   + use threading in python and rg.cgi
+     + increase number of processes and number of threads in start_uwsgi
    - use static pages
      - generate static pages for each state transition
      - Javascript to load static page
@@ -58,6 +63,9 @@ To do file for red-green web-based game.
    - don't import stuff that's not needed
      - only import valid_user_ids on registration
      - only import trivia or rps when being used
+   - use shortcut to find next last_game_file_name
+     - don't scan directory every time
+     - use a global variable, and just check one filename ahead
    - don't have uwsgi log to terminal window
      - send log to a file
    - remove answers from user files - ??
@@ -91,6 +99,7 @@ To do file for red-green web-based game.
    - user nicer layout
  - add score to user, and display on "done" page.
    - add score to user file
+   - could score at end, by processing all answer files
  - make the admin controls stateful
    - highlight phase of game we're in (trivia or rps)
    - indicate the next logical action
@@ -103,14 +112,13 @@ To do file for red-green web-based game.
    - Linus, Greg, Andrew
    - Intel, Arm, RiscV
    - add "flavor" text to rps game
- - handle situation where everyone is eliminated
-   - create action for 'reset to last still-in group'
-     - user status field from user data for this?
-   - save still-in on 'next question'
-     - erase all files in still_in_backup
-     - copy all files from still_in dir to still_in_backup
-   - make action 'restore_still_in"
-     - copy all files from still_in_backup to still_in dir
+
+== deferred todos ==
+ - use answer value as answer code, instead of 'red', 'green', or 'both'
+ - support more than 
+ - coalesce trivia and rps into a state machine
+   - use question/round, answer/result
+   - designate first rps round in trivia/rps data file
 
 == rejected todos ==
  - add 'logout' link for users
@@ -126,6 +134,28 @@ To do file for red-green web-based game.
    - not sure if it's related to missing html_start()??
 
 == done ==
+ + 2020-06-30
+ + add real questions to trivia.py
+   + add images to image directory
+   + allow html to reference images
+ + add qnum to question form to avoid processing late submissions
+   + add qnum to form
+   + check qnum in submit_answer
+   + check state=="question" to avoid late submission for other state
+ + add rnum to query form to avoid processing late submissions
+   + add rnum to form
+   + check rnum in submit_answer
+   + check state=="query" to avoid late submission for other state
+ + handle situation where everyone is eliminated
+   + can also use for warmup question - just back out of eliminations for
+     a question that are not counted
+   + create action for 'restore_still_ins'
+   + call save_still_ins() on 'next question' and 'next_round'
+     + erase all files in still_in_backup
+     + copy all files from still_in dir to still_in_backup
+   + make action 'restore_still_in"
+     + copy all files from still_in_backup to still_in dir
+     + update still-in field in user files
  + 2020-06-27
  + add images to rps game
    + make images dir in web directory
