@@ -3,10 +3,9 @@
 # this file represents the "host throw" for each numbered round
 
 rps_data = {
-    0: "rock",
     1: "rock",
-    2: "scissors",
-    3: "paper",
+    2: "rock",
+    3: "scissors",
     4: "paper",
     5: "scissors",
     6: "rock",
