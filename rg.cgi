@@ -38,6 +38,11 @@ default_suppress_refresh = False
 data_dir = "/home/tbird/work/games/red-green/rgdata/"
 user_dir = data_dir + "users/"
 still_in_dir = data_dir + "still_in/"
+still_in_backup = data_dir + "still_in_backup/"
+
+# STATUS consts
+STILL_IN = "still-in"
+OUT = "out"
 
 # import the trivia data
 if data_dir not in sys.path:
@@ -253,12 +258,12 @@ stub_data = data_class()
 ######################################################
 
 class user_class(object):
-    def __init__(self, user_id, alias, name, email, status="still-in"):
+    def __init__(self, user_id, alias, name, email, status=STILL_IN):
         self.user_id = user_id
         self.alias = alias
         self.name = name
         self.email = email
-        # status can be 'still-in' or 'out'
+        # status can be STILL_IN or OUT
         self.status = status
         self.last_answer = ""
         self.logged_in = False
@@ -272,7 +277,50 @@ class user_class(object):
         fd.write(line)
         fd.close()
 
-    def save_answer(self, data, answer):
+    def save_answer(self, data, form, answer):
+        # make sure answer is for current question
+        if data.phase == "trivia":
+            try:
+                qnum = form["qnum"].value
+            except:
+                data.add_error_message("Question form missing 'qnum'")
+                qnum = 0
+
+            if int(qnum) != data.question_num:
+                data.add_error_message(
+                  "Incorrect question num %s in form<br>" % qnum + \
+                  "Discarding answer for this question. " + \
+                  "Maybe you got behind in the game??")
+                return
+
+            if data.state != "question":
+                data.add_error_message(
+                  "I'm sorry - you missed your opportunity to respond<br>" + \
+                  "Discarding answer for this question. " + \
+                  "Maybe you got behind in the game??")
+                return
+
+        else:
+            try:
+                rnum = form["rnum"].value
+            except:
+                data.add_error_message("Question form missing 'rnum'")
+                rnum = 0
+
+            if int(rnum) != data.round_num:
+                data.add_error_message(
+                  "Incorrect round num %s in form<br>" % rnum + \
+                  "Discarding throw for this round. " + \
+                  "Maybe you got behind in the game??")
+                return
+
+            if data.state != "query":
+                data.add_error_message(
+                  "I'm sorry - you missed your opportunity to respond<br>" + \
+                  "Discarding answer for this question. " + \
+                  "Maybe you got behind in the game??")
+                return
+
         # put answer in user file (old method)
         self.last_answer = answer
         self.write_file()
@@ -299,7 +347,7 @@ class user_class(object):
         # still-in status is kept in a different directory (new method)
         # remove still_in status if we're eliminated
         status_filepath = still_in_dir + self.user_id
-        if status != "still-in" and os.path.exists(status_filepath):
+        if status != STILL_IN and os.path.exists(status_filepath):
             os.remove(status_filepath)
 
 ######################################################
@@ -513,8 +561,8 @@ def show_question_form(data):
         both_text = tdata[qnum][3]
     except (KeyError, IndexError):
         question = "What is wrong with the game engine?"
-        red_text = "Tim doesn't know what he's doing"
         green_text = "Aliens have taken over the server"
+        red_text = "Tim doesn't know what he's doing"
         both_text = ""
         data.add_error_message("Corrupt trivia data for question %d" % qnum)
 
@@ -536,6 +584,7 @@ def show_question_form(data):
 Please choose an answer:
 <FORM method=post action="%s">
 <input type="hidden" name="action" value="submit_answer">
+<input type="hidden" name="qnum" value="%s">
 <ul>
 <table>
   <tr>
@@ -544,7 +593,7 @@ Please choose an answer:
   </tr><tr>
     <td><font color="red">Red</font> : </td>
     <td><INPUT type="radio" name="answer" value="red">%s</td>
-""" % (data.url, red_text, green_text))
+""" % (data.url, data.question_num, green_text, red_text))
 
     if both_text:
         data.html_append("""
@@ -572,13 +621,13 @@ def show_qwaiting_page(data, answer):
     qnum = data.question_num
     try:
         question = tdata[qnum][0]
-        red_text = tdata[qnum][1]
-        green_text = tdata[qnum][2]
+        green_text = tdata[qnum][1]
+        red_text = tdata[qnum][2]
         both_text = tdata[qnum][3]
     except (KeyError, IndexError):
         question = "What is wrong with the game engine?"
-        red_text = "Tim doesn't know what he's doing"
         green_text = "Aliens have taken over the server"
+        red_text = "Tim doesn't know what he's doing"
         both_text = ""
         data.add_error_message("Corrupt trivia data for question %d" % qnum)
 
@@ -587,8 +636,8 @@ def show_qwaiting_page(data, answer):
     d["image_url"] = data.image_url
     d["question"] = question % d
 
-    d["red_text"] = red_text
     d["green_text"] = green_text
+    d["red_text"] = red_text
     d["both_text"] = both_text
 
     data.html_append("""
@@ -599,8 +648,8 @@ def show_qwaiting_page(data, answer):
 <HR>
 """ % d)
 
-    d["red_indicator"] = ""
     d["green_indicator"] = ""
+    d["red_indicator"] = ""
     d["both_indicator"] = ""
 
     if answer == "green":
@@ -674,8 +723,8 @@ def show_answer_page(data, answer):
     d["image_url"] = data.image_url
     d["question"] = question % d
 
-    d["red_text"] = red_text
     d["green_text"] = green_text
+    d["red_text"] = red_text
     d["both_text"] = both_text
 
     data.html_append("""
@@ -701,8 +750,8 @@ def show_answer_page(data, answer):
     else:
         data.add_error_message("Invalid answer '%s' provided" % answer)
 
-    d["red_right"] = ""
     d["green_right"] = ""
+    d["red_right"] = ""
     d["both_right"] = ""
 
     answer_list = answer_code.split("|")
@@ -874,6 +923,7 @@ def show_rps_query_form(data):
 Please choose an item to "throw":
 <FORM method=post action="%(url)s">
 <input type="hidden" name="action" value="submit_answer">
+<input type="hidden" name="rnum" value="%(round_num)s">
 <ul>
 <table>
   <tr>
@@ -1184,7 +1234,7 @@ def html_start(data, user, refresh=False):
     if user and data.phase != "registration":
         data.html_append('<td width="10px">###</td><td>&nbsp;')
 
-        if user.status == "still-in":
+        if user.status == STILL_IN:
             data.html_append("Status: <b>Still In!!</b> </td>\n")
         else:
             data.html_append("Status: <b>Eliminated for now</b> </td> \n")
@@ -1215,6 +1265,8 @@ def show_admin_controls(data):
 <td><a href="%(url)s">main</a></td>
 <td><a href="%(url)s?action=undo">undo</a></td>
 <td><a href="%(url)s?action=edit_game">edit game</a></td>
+<td><a href="%(url)s?action=restore_still_ins">restore_still_ins</a></td>
+<td><a href="%(url)s?action=toggle_refresh">toggle_refresh</a></td>
 <td><a href="%(url)s?action=reset">reset</a></td>
 </tr>""" % d)
 
@@ -1403,17 +1455,41 @@ def clear_current_answers(data):
 
 ######################################################
 
-def reset_user_status(data):
-    # change user status back to 'still-in' for all users (old method)
-    file_list = os.listdir(user_dir)
-    for user_id_filename in file_list:
-        user_filepath = user_dir + user_id_filename
+def save_still_ins():
+    # erase files in still_in_backup dir, and
+    # copy contents of still_in_dir into it
+    file_list = os.listdir(still_in_backup)
+    for f in file_list:
+        os.remove(still_in_backup + f)
+
+    file_list = os.listdir(still_in_dir)
+    for f in file_list:
+        fd = open(still_in_backup + f, "w")
+        fd.write(STILL_IN)
+        fd.close()
+
+######################################################
+
+def restore_still_ins():
+    # erase files in still_in_dir, and
+    # copy contents of still_in_backup dir into it
+    file_list = os.listdir(still_in_dir)
+    for f in file_list:
+        os.remove(still_in_dir + f)
+
+    file_list = os.listdir(still_in_backup)
+    for f in file_list:
+        fd = open(still_in_dir + f, "w")
+        fd.write(STILL_IN)
+        fd.close()
+
+        user_filepath = user_dir + f
         try:
             fd = open(user_filepath, "r+")
             line = fd.readline().strip()
             user_id, alias, name, email, status, last_answer = \
                 line.split(',', 5)
-            status = 'still-in'
+            status = STILL_IN
             fd.seek(0, os.SEEK_SET)
             line = "%s,%s,%s,%s,%s,\n" % \
                 (user_id, alias, name, email, status)
@@ -1424,7 +1500,30 @@ def reset_user_status(data):
             data.add_error_message("Problem resetting status in file: %s" % \
                 (user_filepath))
 
-        # add 'still-in' file to still_in directory (new method)
+######################################################
+
+def reset_user_status(data):
+    # change user status back to STILL_IN for all users (old method)
+    file_list = os.listdir(user_dir)
+    for user_id_filename in file_list:
+        user_filepath = user_dir + user_id_filename
+        try:
+            fd = open(user_filepath, "r+")
+            line = fd.readline().strip()
+            user_id, alias, name, email, status, last_answer = \
+                line.split(',', 5)
+            status = STILL_IN
+            fd.seek(0, os.SEEK_SET)
+            line = "%s,%s,%s,%s,%s,\n" % \
+                (user_id, alias, name, email, status)
+            fd.write(line)
+            fd.truncate()
+            fd.close()
+        except:
+            data.add_error_message("Problem resetting status in file: %s" % \
+                (user_filepath))
+
+        # add still-in file to still_in directory (new method)
         try:
             fd = open(still_in_dir + user_id_filename, "w")
             fd.write(status)
@@ -1432,7 +1531,6 @@ def reset_user_status(data):
         except:
             data.add_error_message("Problem setting status in file: %s" % \
                 (still_in_dir + user_id_filename))
-
 
 ######################################################
 
@@ -1466,9 +1564,9 @@ def update_user_status(data, correct_answer):
             line = fd.readline().strip()
             user_id, alias, name, email, status, last_answer = \
                 line.split(',', 5)
-            if status == "still-in":
+            if status == STILL_IN:
                 if not is_correct(data, phase, correct_answer, last_answer):
-                    status = "out"
+                    status = OUT
                     fd.seek(0, os.SEEK_SET)
                     line = "%s,%s,%s,%s,%s,%s\n" % \
                         (user_id, alias, name, email, status, last_answer)
@@ -1481,7 +1579,7 @@ def update_user_status(data, correct_answer):
 
         # remove still_in status if we're eliminated
         in_filepath = still_in_dir + user_id_filename
-        if status != "still-in" and os.path.exists(in_filepath):
+        if status != STILL_IN and os.path.exists(in_filepath):
             os.remove(in_filepath)
 
 ######################################################
@@ -1520,9 +1618,11 @@ def show_register_form(data, user_id, alias, name, email):
   The 'Real Name' and 'E-mail' will not be displayed or shared with
   anyone.<br>
   They will only be used to contact you in the event you win a prize.<br>
+  <p>
   Your account name (alias) may be displayed during the game if you are among
   a small number of contestants still in the running for a prize, for a particular
-  trivia round.
+  trivia round. Since other users may see this, please keep your account
+  name inoffensive.  Thanks :-)
 </ul>
 """ % (data.url, user_id, alias, name, email))
 
@@ -1603,8 +1703,8 @@ specified.  Please use correct Event Confirmation Number.""" % user_id)
     # start late users as eliminated
     # this prevents users from leaving the game and rejoining, in order
     # to change their status
-    if data.state != "registration":
-        user.status = "out"
+    if data.phase != "registration":
+        user.status = OUT
         user.write_file()
 
 
@@ -1655,6 +1755,7 @@ def do_action(action, data, form, user):
         write_game_data(data)
         clear_user_answers(data)
         reset_user_status(data)
+        save_still_ins()
 
     elif action == "submit_answer":
         try:
@@ -1664,7 +1765,7 @@ def do_action(action, data, form, user):
             answer = ""
 
         if answer:
-            user.save_answer(data, answer)
+            user.save_answer(data, form, answer)
 
     elif phase == "trivia" and action == "show_answer":
         data.state = "answer"
@@ -1684,6 +1785,7 @@ def do_action(action, data, form, user):
         write_game_data(data)
         clear_user_answers(data)
         clear_current_answers(data)
+        save_still_ins()
 
         # after declaring winners, let everyone back into the game
         if last_state == "winners":
@@ -1703,6 +1805,7 @@ def do_action(action, data, form, user):
         write_game_data(data)
         clear_user_answers(data)
         reset_user_status(data)
+        save_still_ins()
 
     elif phase == "rps" and action == "show_result":
         data.state = "result"
@@ -1722,6 +1825,7 @@ def do_action(action, data, form, user):
         write_game_data(data)
         clear_user_answers(data)
         clear_current_answers(data)
+        save_still_ins()
 
         # after declaring winners, let everyone back into the game
         if last_state == "winners":
@@ -1754,6 +1858,19 @@ If so, click on the link below to really reset the game:<br>
         data.set_data(reset_data)
         data.suppress_refresh = True
         data.add_notice("Click 'main' to continue")
+
+    elif action == "restore_still_ins":
+        data.suppress_refresh = True
+        html_start(data, user)
+        data.html_append("""<h1>### RESTORE STILL INS ###</h1>
+Are you sure you want to restore the still_ins from backup?<br>
+If so, click on the link below to really reset the game:<br>
+<a href="%s?action=really_restore_still_ins">Really Restore still_ins!!</a>&nbsp;&nbsp;&nbsp;
+<a href="%s">cancel (don't restore)</a>
+""" % (data.url, data.url))
+
+    elif action == "really_restore_still_ins":
+        restore_still_ins()
 
     elif action == "edit_game":
         # show a form to set values directly
@@ -1810,6 +1927,14 @@ If so, click on the link below to really undo 1 game step:<br>
         # replace items in data with items in new_data
         data.set_data(new_data)
         data.suppresh_refresh = True
+
+    elif action == "toggle_refresh":
+        global default_suppress_refresh
+
+        if default_suppress_refresh:
+            default_suppress_refresh = False
+        else:
+            default_suppress_refresh = True
 
     else:
         data.add_error_message("""Unknown action: '%s'
