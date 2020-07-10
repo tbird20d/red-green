@@ -41,6 +41,23 @@ rfile =  data_dir + "suppress_refresh"
 default_suppress_refresh = os.path.exists(rfile)
 #default_suppress_refresh = True
 
+# mode indicates whether we're doing a group play (with an admin game
+# moderator) or just letting a single user run through the questions
+# to get their own score.
+# this has a significant effect on the game mechanics
+SINGLE="single"
+default_mode = SINGLE
+#default_mode = "group"
+
+# in single-player mode:
+#   question forms have a timeout
+#   each user has their own game data file  to control game state
+#   each page must automatically drive to the next status
+#   start_trivia, and done are automatic
+#   declare_winners is not supported
+#   users are allowed to make state changes
+# in multi-player
+#   administrator makes all game state changes
 
 # STATUS consts
 STILL_IN = "still-in"
@@ -159,6 +176,7 @@ class data_class(object):
         self.url = CGI_URL
         self.image_url = IMAGE_URL
         self.rps_image_size = 80
+        self.mode = default_mode
 
         # here is the game data
         self.game_attr_list = ['sequence', 'winner_group', 'phase',
@@ -594,7 +612,7 @@ def show_question_form(data):
 
     data.html_append("""
 Please choose an answer:
-<FORM method=post action="%s">
+<FORM method=post action="%s" name="question_form">
 <input type="hidden" name="action" value="submit_answer">
 <input type="hidden" name="qnum" value="%s">
 <ul>
@@ -617,7 +635,7 @@ Please choose an answer:
     # now finish the form
     data.html_append("""
   </tr><tr>
-    <td><input type="submit" name="submit" value="Submit"></td>
+    <td><input type="submit" name="give_answer" value="Submit"></td>
     <td></td>
   </tr>
 </table>
@@ -625,7 +643,17 @@ Please choose an answer:
 <FORM>
 <p>
 """)
+
+    if data.mode == SINGLE:
+        seconds = 20
+        timer_html = get_timer_html(data, seconds, "submit")
+        data.html_append(timer_html + """
+<div>You have <span id="time">%s</span> seconds to answer the question</div>
+<p>
+""" % seconds)
+
     data.is_form_page = True
+
 
 ######################################################
 
@@ -707,6 +735,14 @@ You chose an answer:
 <h1 align="center">Waiting for answer</h1>
 <HR>\n<p>\n
 """)
+
+    if data.mode == SINGLE:
+        seconds = 10
+        timer_html = get_timer_html(data, seconds, "show_answer")
+        data.html_append(timer_html + """
+<div>Answer will show in in <span id="time">%s</span> seconds</div>
+<p>
+""" % seconds)
 
 ######################################################
 
@@ -822,6 +858,14 @@ You chose an answer:
 %s
 <HR>\n<p>\n
 """ % (answer_text % d, msg))
+
+    if data.mode == SINGLE:
+        seconds = 20
+        timer_html = get_timer_html(data, seconds, "next_question")
+        data.html_append(timer_html + """
+<div>Next question will show in in <span id="time">%s</span> seconds</div>
+<p>
+""" % seconds)
 
 ######################################################
 
@@ -1341,7 +1385,7 @@ def show_admin_controls(data):
         d["next_round"] = "next_round (disabled)"
 
     if data.phase == "rps":
-        d["done"] = '<a href="%(url)s?action=done">done</a>' % d 
+        d["done"] = '<a href="%(url)s?action=done">done</a>' % d
     else:
         d["done"] = 'done'
 
@@ -1638,6 +1682,8 @@ def show_register_form(data, user_id, alias, name, email):
 </ul>
 """ % (data.url, user_id, alias, name, email))
 
+######################################################
+
 def do_register_user(data, form):
     # check data while collecting it from form
     error_count = 0
@@ -1735,15 +1781,57 @@ specified.  Please use correct Event Confirmation Number.""" % user_id)
     show_waiting_to_begin_page(data)
     return
 
+######################################################
+
+def get_timer_html(data, seconds, action):
+    if action == "submit":
+        action_str = 'document.question_form.submit()'
+    else:
+        action_str = 'window.location.href="%s?action=%s"' % (data.url, action)
+
+    return """
+<script>
+function start_timer(duration, display) {
+    var timer = duration, seconds;
+    setInterval(function () {
+        seconds = parseInt(timer);
+        display.textContent = seconds;
+        if (--timer < 0 ) {
+            %s;
+        }
+      }, 1000);
+}
+
+window.onload = function () {
+    var seconds = %s;
+    display = document.querySelector('#time');
+    start_timer(seconds, display);
+};
+</script>
+
+""" % (action_str, seconds)
+
+######################################################
+
 def show_waiting_to_begin_page(data):
     data.html_append("""
 <h1 align="center">Waiting for game to begin...</h1>
 <HR>\n<p>\n
 """)
 
-    # FIXTHIS - only show if data.admin_view:  ??
-    user_count = get_registered_user_count()
-    data.html_append("Number of registered players=%d\n<p>" % user_count)
+    if data.mode == SINGLE:
+        seconds = 20
+        timer_html = get_timer_html(data, seconds, "start_trivia")
+        data.html_append(timer_html + """
+<div>Game begins in <span id="time">%s</span> seconds</div>
+<p>
+""" % seconds)
+    else:
+        # FIXTHIS - only show if data.admin_view:  ??
+        user_count = get_registered_user_count()
+        data.html_append("Number of registered players=%d\n<p>" % user_count)
+
+######################################################
 
 # return True if response was handled completely
 def do_action(action, data, form, user):
