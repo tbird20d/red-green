@@ -737,7 +737,7 @@ You chose an answer:
 """)
 
     if data.mode == SINGLE:
-        seconds = 10
+        seconds = 5
         timer_html = get_timer_html(data, seconds, "show_answer")
         data.html_append(timer_html + """
 <div>Answer will show in in <span id="time">%s</span> seconds</div>
