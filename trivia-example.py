@@ -14,16 +14,14 @@
 tdata = {
 1: [
       """
-         What company launched the rocket shown here?
-         <p>
-         <img src="%(image_url)s/spacex-logo-on-rocket.jfif" height="150">
+         [Warmup question] What is the main benefit of Open Source?
       """,
-      "SpaceX",
-      "Blue Origin",
+      "freedom",
+      "free price",
       "",
       "green",
       """
-         There's a logo on the side of the rocket.
+         Open Source provides freedom for users and developers.
       """
      ],
 2: [
