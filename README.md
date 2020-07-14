@@ -1,11 +1,13 @@
-== quickstart ==
+quickstart
+==========
 To start a new game, you can just and access the cgi script (rg.cgi)
 and click 'reset', then click 'really reset!!'
 
 See "how to test" below, for different methods of running
 a standalone local instance of a server that can serve the script.
 
-== Running under another web server ==
+Running under another web server
+================================
 To run on a machine with an existing web server,
 put rg.cgi into /usr/lib/cgi-bin, and change the
 data path to where you put the trivia.py and rps.py files.  The data
@@ -17,24 +19,32 @@ for the CGI version of the script, or to
 Then point your browser at: http://server.address/rg
 for the WSGI verison of the script
 
-== Running with local web server ==
-To run on a machine without a web server, run ./start_server.
+Running with local web server
+=============================
+To run on a machine without a web server, run ./start-cgi-server.
 
 Then point your browser at: http://localhost:8000/rg.cgi
 
 To log in as admin, use this url:
 http://localhost:8000/rg.cgi?user_id=admin_game_admin
 
-== Running with apache2 ==
+Running with apache2
+====================
 I added the following line to /etc/apache2/conf-available/wsgi.conf
 WSGIScriptAlias /rg /usr/lib/cgi-bin/rg.cgi
 
-== pre-game ==
+Executing the game
+==================
+
+pre-game
+--------
 Remove user registration files in the rgdata directory
 Remove winner files in the rgdata directory
+Remove leftover answer, rps, and still-in data
 ('make clean' will do this)
 
-== Operating the game ==
+Operating the game
+------------------
 On the admin screen, you will see a menu showing controls for the game.
 
 there are 4 main phases:
@@ -52,8 +62,12 @@ changes the game's data file.
 If you click on the wrong thing, or enter the wrong data, you can
 click 'undo' to revert to a previous game state.
 
-= how to test =
-== local work ==
+how to test (on specific machines)
+==================================
+There are notes for Tim's development machines.
+
+desktop machine local work
+--------------------------
  - this runs the script as a single-threaded, single-process CGI
    using a python web server
  - cd ~/work/games/red-green ; ./start_server
@@ -63,7 +77,8 @@ click 'undo' to revert to a previous game state.
    - desktop: chrome chrome: http://localhost:8000/rg.cgi?user_id=one
    - laptop: chrome: http://desktop:8000/rg.cgi?user_id=two
 
-== personal server work ==
+personal server work
+--------------------
  - edit rg.cgi
    - cd ~/work/games/red-green/cgi-bin
    - vi rg.cgi
@@ -75,7 +90,8 @@ click 'undo' to revert to a previous game state.
    - desktop: chrome https://server-addr/rg (register as 'one')
    - laptop: chrome https://server-addr/rg (register as 'two')
 
-== closinggame.net work ==
+closinggame.net work
+--------------------
  - start server and wsgi gateway
    - systemctl start nginx (if not already running)
    - cd ~/work/games/red-green
@@ -89,7 +105,8 @@ click 'undo' to revert to a previous game state.
    - timdesk: chrome https://closinggame.net/rg (register as 'one')
    - laptop: chrome https://closinggame.net/rg (register as 'two')
 
-== linux laptop work ==
+linux laptop work
+-----------------
  - this runs the script as a single-threaded, single-process CGI
    using a python web server
  - cd ~/work/games/red-green ; ./start_old_server
