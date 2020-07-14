@@ -1,0 +1,5 @@
+#!/bin/sh
+#
+# ps-uwsgi - script to check if uwsgi gateway is running
+
+ps aux | grep [u]wsgi | grep -v ps-uwsgi
