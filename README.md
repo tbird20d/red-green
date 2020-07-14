@@ -39,10 +39,11 @@ Executing the game
 
 pre-game
 --------
-Remove user registration files in the rgdata directory
-Remove winner files in the rgdata directory
-Remove leftover answer, rps, and still-in data
-('make clean' will do this)
+ - Remove user registration files in the rgdata directory
+ - Remove winner files in the rgdata directory
+ - Remove leftover answer, rps, and still-in data
+ 
+('make clean' will do all this)
 
 Operating the game
 ------------------
