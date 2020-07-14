@@ -1,26 +1,27 @@
 To do file for red-green web-based game.
 
-= how to restart =
+= how to test =
 == local work ==
+ - this runs the script as a single-threaded, single-process CGI
+   using a python web server
  - cd ~/work/games/red-green ; ./start_server
- - from timdesk: chrome: http://localhost:8000/rg.cgi?user_id=one
-   - this browser should have the cookie for user_id==one
- - from timdesk: firefox: http://localhost:8000/rg.cgi?user_id=admin-game-admin
-   - this browser should have the cookie for user_id==admin-game-admin (alias=admin)
- - from laptop: chrome: http://10.0.1.61:8000/rg.cgi?user_id=ABCDEF
-   - this browser should have the cookie for user_id==ABCDEF (alias=two)
+ - browse as admin:
+   - firefox: http://localhost:8000/rg.cgi?user_id=admin-game-admin
+ - browse as user:
+   - desktop: chrome chrome: http://localhost:8000/rg.cgi?user_id=one
+   - laptop: chrome: http://desktop:8000/rg.cgi?user_id=two
 
-== birdcloud work ==
+== personal server work ==
  - edit rg.cgi
    - cd ~/work/games/red-green/cgi-bin
    - vi rg.cgi
    - ./stop-uwsgi
    - (in other window) ./start-uwsgi
  - browse as admin:
-   - firefox https://birdcloud.org/rg?user_id=admin-game-admin
+   - firefox https://server-addr/rg?user_id=admin-game-admin
  - browse as user:
-   - timdesk: chrome https://birdcloud.org/rg (register as 'one')
-   - laptop: chrome https://birdcloud.org/rg (register as 'two')
+   - desktop: chrome https://server-addr/rg (register as 'one')
+   - laptop: chrome https://server-addr/rg (register as 'two')
 
 == closinggame.net work ==
  - start server and wsgi gateway
@@ -36,28 +37,54 @@ To do file for red-green web-based game.
    - timdesk: chrome https://closinggame.net/rg (register as 'one')
    - laptop: chrome https://closinggame.net/rg (register as 'two')
 
-= to do =
- - test features
-   - make sure all images load
-   - not sure what's up with mslogo.jpg
+== linux laptop work ==
+ - this runs the script as a single-threaded, single-process CGI
+   using a python web server
+ - cd ~/work/games/red-green ; ./start_miki_server
+ - browse as admin:
+   - firefox: http://localhost:8000/rg.cgi?user_id=admin-game-admin
+ - browse as user:
+   - desktop: chrome chrome: http://localhost:8000/rg.cgi?user_id=one
+   - laptop: chrome: http://desktop:8000/rg.cgi?user_id=two
 
- - make list of actions that need to be done during game:
-   - have to remind people to refresh, if they get an error message
-     - maybe should just change refresh to 10 seconds?
+= to do =
+ - add a 'watcher-only' view
+   - this could be used in a presentation setting, so you don't have to have
+     coordinated slides
+   - would advance automatically through game
+     - if we have timeout for
+ - add single-user mode = regular timed trivia game, without moderator
+   + create new mode: SINGLE
+   + add timer to show_question, so user can't take forever to answer question
+     + add form name ('question_form')
+     + have timer submit form
+   + add timer to show_waiting_to_begin() page
+     + have timer do 'start_trivia' action on expiration
+   + add timer to qwaiting page (5 seconds?), to build suspense
+   + add timer to answer page (20 seconds?), so user can see answer
+     - add link so user can move ahead when they are ready
+   - make it so that in regular mode, only admin can change game state
+   - get rid of "still-in" logic for single-user mode
+   - use per-user game data
+     - make a new directory: user-game-data
+       - have a game data file per user
+         - modify read_game_data/write_game-data
+ - get images for trivia-elc-2020.py from closinggame.net server
+
+ - make a help page?
 
  - work on performance:
    - change to use UNIX socket, instead of 127.0.0.1:3031, for interface between
      nginx and uwsgi
-   + use threading in python and rg.cgi
-     + increase number of processes and number of threads in start_uwsgi
+   - disable logging to console?
    - use static pages
      - generate static pages for each state transition
      - Javascript to load static page
-       - do minimal processing in rg.cgi, and send back user_id, still_in status, and
-         name of static page to load
+       - do minimal processing in rg.cgi, and send back user_id,
+         still_in status, and name of static page to load
        - Javascript should load static page via nginx
-     - make 14 pages per question/round
-       - every combination of 
+     - make multiple pages per question/round
+       - every combination answers, indicators, and result messages
    - add 'key' to question data (so users can't guess the next form
      and load the static html page)
    - don't import stuff that's not needed
@@ -66,8 +93,9 @@ To do file for red-green web-based game.
    - use shortcut to find next last_game_file_name
      - don't scan directory every time
      - use a global variable, and just check one filename ahead
-   - don't have uwsgi log to terminal window
-     - send log to a file
+       - fall back to directory scan if that doesn't work
+   + don't have uwsgi log to terminal window
+     + send log to a file
    - remove answers from user files - ??
      - eliminate: clear_user_answers()
      - check places where user file is read/written and remove last_answer field
@@ -88,37 +116,51 @@ To do file for red-green web-based game.
  - show stats on show_answers and show_results page:
    - number of users with correct/incorrect answers
    - number of users eliminated this round, number still-in
+   - make a stats file that can be read by all users
+     - have admin write to the file
+     - have everyone else only read the file
  - show number of each answer on the qwaiting and rwaiting pages, for admin
  - remove all FIXTHIS items
  - fix all bugs (see below)
- - test it with multiple participants
- - add message when user is eliminated
+ - add notice message when user is eliminated
  - make the player screen pretty
    - change page colors
    - add graphics
    - user nicer layout
  - add score to user, and display on "done" page.
-   - add score to user file
+   - add score to user file?
+     - it's read on every page load anyway
+     - requires writing the score on each question (could be 1000 writes
+       for each question
+     - we write 'still_in' on each answer, so adding score adds no overhead
    - could score at end, by processing all answer files
- - make the admin controls stateful
-   - highlight phase of game we're in (trivia or rps)
-   - indicate the next logical action
-     - if still_in_count > 15, disable declare_winners
-     - if state=="question", disable next_question (or highlight show_answer)
-     - etc
+ - in admin controls: if still_in_count > 15, disable declare_winners
  - add alternate options to rps:
    - rock, paper, scissors, lizard, spock
    - windows, linux, mac
    - Linus, Greg, Andrew
    - Intel, Arm, RiscV
-   - add "flavor" text to rps game
-
-== deferred todos ==
+   - add additional (optional) text to rps game
  - use answer value as answer code, instead of 'red', 'green', or 'both'
- - support more than 
- - coalesce trivia and rps into a state machine
+   - use a flag to indicate game mode:
+     - red-green vs. multiple-choice trivia
+ - coalesce trivia and rps into a single state machine
+   - use mode to alter behavior of pages
    - use question/round, answer/result
    - designate first rps round in trivia/rps data file
+ - use a markup language for the question pages, instead of pure html
+   - use wiki page to create content, then user a generator to convert
+     into trivia.py file
+     - hand editing the trivia.py was a major pain point
+   - create page converter (trivia.py generator)
+ - write documentation
+ - create standalone mode (not controlled by admin)
+   - use timeout feature
+   - automatically advance to each question, after a timeout
+   - need to put phase and state per-user (in a cookie?)
+ - add timeout for question
+   - write javascript timer to submit form if user doesn't do it in time
+   - put timeout value per question in trivia data 
 
 == rejected todos ==
  - add 'logout' link for users
@@ -129,121 +171,46 @@ To do file for red-green web-based game.
    - too much for now
 
 == fix bugs ==
- - sometimes, the server and browser get stuck
+ - sometimes, the test server and client browser get stuck
    - I have to ctrl-C the server and restart it
-   - not sure if it's related to missing html_start()??
-
-== done ==
- + 2020-06-30
- + add real questions to trivia.py
-   + add images to image directory
-   + allow html to reference images
- + add qnum to question form to avoid processing late submissions
-   + add qnum to form
-   + check qnum in submit_answer
-   + check state=="question" to avoid late submission for other state
- + add rnum to query form to avoid processing late submissions
-   + add rnum to form
-   + check rnum in submit_answer
-   + check state=="query" to avoid late submission for other state
- + handle situation where everyone is eliminated
-   + can also use for warmup question - just back out of eliminations for
-     a question that are not counted
-   + create action for 'restore_still_ins'
-   + call save_still_ins() on 'next question' and 'next_round'
-     + erase all files in still_in_backup
-     + copy all files from still_in dir to still_in_backup
-   + make action 'restore_still_in"
-     + copy all files from still_in_backup to still_in dir
-     + update still-in field in user files
- + 2020-06-27
- + add images to rps game
-   + make images dir in web directory
-   + put images there
-   + reference them in html
-     + show_rps_query_form
-     + show_rps_waiting_page
-     + show_result_page
- + add number of questions and number of rounds to html_end status
- + create question dir when admin starts question or rps round
- + handle situation where someone joins late
-   + if someone registers, and the phase is not "registration", then 
-     start them in "out" state
- + make script work on closinggame.net
-   + start uwsgi manually 
-     + write start-uwsgi script
-     + write stop-uwsgi script
-     + write reload-nginx script
- + 2020-06-24 make still_in_dir - to hold still-in status
-   + redundant with still-in field in user file
-   + populate still_in_dir with all user ids on 'next_question' or 'next_round'
- + add reload ('this link') link for users
- + make sure users who don't answer a question are eliminated
-   + reset still-in status on 'answer_question" or 'show_result'
-   + modify update_user_status()
- + remove filematch for user filenames in user_dir
-   + change user filename to user_id
- + players are eliminated even on correct answers
- + support global suppression of refresh
-   + just provide a link to start
-   + change message about "page will automatically refresh", and provide a link
- + 2020-06-23 login is not working
-   + click on birdcloud.org/rg, and it doesn't have the user logged in
-     + show messages for account lookup
-     + are we getting the cookie? no
-   + use correct environ dictionary for WSGI
- + resolve refresh issue
-   + only do an action once, then change the url for action=none ??
-     + why is refresh resending the URL data (?action=next_question)
-   + was a bug with quotes in the meta refresh line
- + support action=logout
-2020-06-11 + convert everything to wsgi 
-   + install flask - see NOTES-flask-install.txt
-   + convert all prints to html_append
-   + convert user database to internal data structure (user dictionary?)
-   + eliminate global variables
-     + put them into data_class
-     + admin_view
-     + header_shown
-     - show_data (leave this one)
-   + call start_response with headers and cookies
-   + return html to wsgi, along with headers (cookies), etc.
+     - when running single-process python local cgi server
 
 == game outline ==
-   - have game phases:
+ - have game phases:
      - registration
        - do registration while doing announcements and thank-yous
      - red-green game
      - rock-paper-scissors (RPS)
+     - done
+   - have 2 interfaces:
+     - admin interface
+       - shows page that users see
+       - also shows:
+         - shows game stats
+         - shows game controls
+           - reveal answer
+           - go to next question
+           - reset voters
+           - declare winners
+     - player interface
+        - player interface:
+          - shows always:
+            - player alias
+            - eliminated status (still in or not)
+          - question page:
+            - current question
+            - answer selection form:
+              - red, green, both radio buttons
+                or
+              - rps options
+          - waiting page: 
+            - player answer/throw (red, green, both indicator)
+          - answer page:
+            - player answer/throw (red, green, both indicator)
+            - indication of correct answer/host throw
    - registration page
-       - server keeps track of players still alive in a round
-       - admin allows for visibility of next question
-         - have 2 interfaces: admin, player
-           - admin interface:
-             - number voted
-               - number red, green, both, neither
-               - number left in round, current question
-             - names of players left in round (if less than 20)
-           - admin links:
-             - reveal answer
-             - go to next question
-             - reset voters
-               - end round, designate winners
-           - player interface:
-             - question page:
-               - current question
-               - answer selection form:
-                 - red, green checkboxes
-               - eliminated status (still in or not)
-             - waiting page: 
-               - player answer (red, green, both, neither)
-               - number left in round
-               - eliminated status (still in or not)
-             - answer page:
-               - player answer (red, green, both, neither)
-               - indication of correct or not
-               - number left in round
-               - eliminated status (still in or not)
+     - server keeps track of players still alive in a round
+       - admin decides when to make next question visible
        - game is played in 'rounds'
        - rock, paper, scissors - online
          - admin interface
@@ -251,73 +218,4 @@ To do file for red-green web-based game.
                - number rock, paper, scissors
                - number still voting
                - current round number
-         - admin links:
-            - reveal answer
-         - player interface:
-             - question page:
-               - current question = always (rock, paper or scissors)
-               - answer selection form:
-                 - rock, paper, scissors radio button
-               - eliminated status (still in or not)
-             - waiting page: 
-               - player answer (rock, paper or scissors)
-               - number left in round
-               - eliminated status (still in or not)
-             - answer page:
-               - player answer (rock, paper, or scissors)
-               - admin choice (rock, paper, or scissors)
-               - indication of correct or not
-               - number left in round
-               - eliminated status (still in or not)
 
-
-= done =
- + determine how game will work
- + define phases: registration, trivia, rps
-   + create registration phase
-     + create file per user 
-       + has data: player id, email, name, alias, answers, status 
-     + create registration form page
-     + create user cookie
-       + make sure cookie works
-     + add 'logout' action
- + create wait-for-game-start page (refreshing while waiting for admin)
-   + count number of users
-   + put user_id and number of users on waiting page
-
- + create 'start_game' action
-   + move to 'trivia' phase, and set question_num to 1
-
- + create trivia phase
-   + create trivia file
-   + create question page
-     + with answer form
-   + create question_waiting page
-     + show user's answer
-     + show count of votes
-     + show users status
-   + create answer page
-     + show user's answer
-   + move change user status to 'out', when they get answer wrong
-   + clear users answers when starting next question
-
- + create "declare winners" action
-   + save winners to file
-     + save data for each winner (users with status 'still-in')
- + create "reset status" action
-   + move all users back to 'still-in' status
- + create show_winners page
-   + show list of winners
-     + read winner file
-     + show alias for each winner
-     + on admin page, show a link to 'reset status'
-
- + create 'start_rps' action
-   + change all user statuses to "still-in"
-
- + create rps phase
-   + create rps file
-     + import rps data
-   + create show_rps function
- + create show_result_page
- + create show_rps_waiting_page

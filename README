@@ -2,10 +2,6 @@
 To start a new game, you can just and access the cgi script (rg.cgi)
 and click 'reset', then click 'really reset!!'
 
-The main view is the admin view.  Press "player view" to see the
-screen the player would have.  Press "auto view" for an automatically
-updated (every 2 seconds) player view.
-
 == Running under another web server ==
 To run on a machine with an existing web server,
 put rg.cgi into /usr/lib/cgi-bin, and change the
