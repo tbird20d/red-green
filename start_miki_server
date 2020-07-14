@@ -1,0 +1,5 @@
+#!/bin/sh
+
+unset http_proxy
+unset ftp_proxy
+exec python mikiCGIHTTPServer.py
