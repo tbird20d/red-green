@@ -15,8 +15,8 @@ path must be read/writable by the cgi script (which means the
 web server).
 
 Then point your browser at: http://server.address/cgi-bin/rg.cgi
-for the CGI version of the script, or to
-Then point your browser at: http://server.address/rg
+for the CGI version of the script, or
+use: http://server.address/rg
 for the WSGI verison of the script
 
 Running with local web server
