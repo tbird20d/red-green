@@ -25,7 +25,7 @@ tdata = {
       """
          There's a logo on the side of the rocket.
       """
-     ],
+   ],
 2: [
       """
          What is the the airspeed velocity of an unladen swallow?
@@ -37,17 +37,18 @@ tdata = {
       """
          Either answer is OK.
       """
-     ],
-99: [ """
-        question
+   ],
+3: [
+      """
+         What is the name of the organization that Linus Torvalds works for?
       """,
-      "green answer",
-      "red answer",
-      "",
-      "answer_code [green, red, both]",
+      "The Linus Foundation",
+      "Linaro",
+      "something else",
+      "both",
       """
-         answer_text
-         <img src="%(image_url)s/foo.jpg" height="64">
+         Linus is employed by the <u>Linux Foundation</u><br>
+         <i>Not the Linu<u>s</u> Foundation!</i>
       """
-     ],
+   ],
 }
