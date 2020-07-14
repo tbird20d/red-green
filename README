@@ -92,7 +92,7 @@ click 'undo' to revert to a previous game state.
 == linux laptop work ==
  - this runs the script as a single-threaded, single-process CGI
    using a python web server
- - cd ~/work/games/red-green ; ./start_miki_server
+ - cd ~/work/games/red-green ; ./start_old_server
  - browse as admin:
    - firefox: http://localhost:8000/rg.cgi?user_id=admin-game-admin
  - browse as user:
