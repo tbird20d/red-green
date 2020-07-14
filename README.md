@@ -1,6 +1,6 @@
 quickstart
 ==========
-To start a new game, you can just and access the cgi script (rg.cgi)
+To start a new game, you can just access the cgi script (rg.cgi)
 and click 'reset', then click 'really reset!!'
 
 See "how to test" below, for different methods of running
