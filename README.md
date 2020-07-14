@@ -31,7 +31,8 @@ http://localhost:8000/rg.cgi?user_id=admin_game_admin
 Running with apache2
 ====================
 I added the following line to /etc/apache2/conf-available/wsgi.conf
-WSGIScriptAlias /rg /usr/lib/cgi-bin/rg.cgi
+
+  WSGIScriptAlias /rg /usr/lib/cgi-bin/rg.cgi
 
 Executing the game
 ==================
