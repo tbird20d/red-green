@@ -46,8 +46,8 @@ default_suppress_refresh = os.path.exists(rfile)
 # to get their own score.
 # this has a significant effect on the game mechanics
 SINGLE="single"
-default_mode = SINGLE
-#default_mode = "group"
+#default_mode = SINGLE
+default_mode = "group"
 
 # in single-player mode:
 #   question forms have a timeout
