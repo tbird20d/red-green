@@ -1,82 +1,29 @@
 To do file for red-green web-based game.
 
-= how to test =
-== local work ==
- - this runs the script as a single-threaded, single-process CGI
-   using a python web server
- - cd ~/work/games/red-green ; ./start_server
- - browse as admin:
-   - firefox: http://localhost:8000/rg.cgi?user_id=admin-game-admin
- - browse as user:
-   - desktop: chrome chrome: http://localhost:8000/rg.cgi?user_id=one
-   - laptop: chrome: http://desktop:8000/rg.cgi?user_id=two
-
-== personal server work ==
- - edit rg.cgi
-   - cd ~/work/games/red-green/cgi-bin
-   - vi rg.cgi
-   - ./stop-uwsgi
-   - (in other window) ./start-uwsgi
- - browse as admin:
-   - firefox https://server-addr/rg?user_id=admin-game-admin
- - browse as user:
-   - desktop: chrome https://server-addr/rg (register as 'one')
-   - laptop: chrome https://server-addr/rg (register as 'two')
-
-== closinggame.net work ==
- - start server and wsgi gateway
-   - systemctl start nginx (if not already running)
-   - cd ~/work/games/red-green
-   - ./start-uwsgi
- - edit rg.cgi
-   - cd ~/work/games/red-green
-   - vi rg.cgi
- - browse as admin:
-   - firefox https://closinggame.net/rg?user_id=admin-game-admin
- - browse as user:
-   - timdesk: chrome https://closinggame.net/rg (register as 'one')
-   - laptop: chrome https://closinggame.net/rg (register as 'two')
-
-== linux laptop work ==
- - this runs the script as a single-threaded, single-process CGI
-   using a python web server
- - cd ~/work/games/red-green ; ./start_miki_server
- - browse as admin:
-   - firefox: http://localhost:8000/rg.cgi?user_id=admin-game-admin
- - browse as user:
-   - desktop: chrome chrome: http://localhost:8000/rg.cgi?user_id=one
-   - laptop: chrome: http://desktop:8000/rg.cgi?user_id=two
-
 = to do =
+ - add single-user mode = regular timed trivia game, without moderator
+   - use per-user game data
+     - make a new directory: user-game-data
+       - have a game data file per user
+         - modify read_game_data/write_game-data
+   - make link so user can move ahead when they are ready
+   - don't put timer on show_answer page (so user can stop and get a sandwhich)
+   - make it so that in regular mode, only admin can change game state
+   - get rid of "still-in" logic for single-user mode
+     - add score for top data bar instead
+   - add link so user can use the first available guest account
+
  - add a 'watcher-only' view
    - this could be used in a presentation setting, so you don't have to have
      coordinated slides
    - would advance automatically through game
      - if we have timeout for
- - add single-user mode = regular timed trivia game, without moderator
-   + create new mode: SINGLE
-   + add timer to show_question, so user can't take forever to answer question
-     + add form name ('question_form')
-     + have timer submit form
-   + add timer to show_waiting_to_begin() page
-     + have timer do 'start_trivia' action on expiration
-   + add timer to qwaiting page (5 seconds?), to build suspense
-   + add timer to answer page (20 seconds?), so user can see answer
-     - add link so user can move ahead when they are ready
-   - make it so that in regular mode, only admin can change game state
-   - get rid of "still-in" logic for single-user mode
-   - use per-user game data
-     - make a new directory: user-game-data
-       - have a game data file per user
-         - modify read_game_data/write_game-data
- - get images for trivia-elc-2020.py from closinggame.net server
 
  - make a help page?
 
  - work on performance:
    - change to use UNIX socket, instead of 127.0.0.1:3031, for interface between
      nginx and uwsgi
-   - disable logging to console?
    - use static pages
      - generate static pages for each state transition
      - Javascript to load static page
@@ -94,8 +41,6 @@ To do file for red-green web-based game.
      - don't scan directory every time
      - use a global variable, and just check one filename ahead
        - fall back to directory scan if that doesn't work
-   + don't have uwsgi log to terminal window
-     + send log to a file
    - remove answers from user files - ??
      - eliminate: clear_user_answers()
      - check places where user file is read/written and remove last_answer field
@@ -131,9 +76,10 @@ To do file for red-green web-based game.
    - add score to user file?
      - it's read on every page load anyway
      - requires writing the score on each question (could be 1000 writes
-       for each question
-     - we write 'still_in' on each answer, so adding score adds no overhead
-   - could score at end, by processing all answer files
+       for each question)
+     - we write 'still_in' to user file on each answer, so adding score
+       adds no significant overhead
+   - could score at end, by processing all answer files, instead of as-you-go
  - in admin controls: if still_in_count > 15, disable declare_winners
  - add alternate options to rps:
    - rock, paper, scissors, lizard, spock
@@ -176,46 +122,45 @@ To do file for red-green web-based game.
      - when running single-process python local cgi server
 
 == game outline ==
- - have game phases:
+ - game phases (multiplayer):
      - registration
        - do registration while doing announcements and thank-yous
      - red-green game
      - rock-paper-scissors (RPS)
      - done
-   - have 2 interfaces:
-     - admin interface
-       - shows page that users see
-       - also shows:
-         - shows game stats
-         - shows game controls
-           - reveal answer
-           - go to next question
-           - reset voters
-           - declare winners
-     - player interface
-        - player interface:
-          - shows always:
-            - player alias
-            - eliminated status (still in or not)
-          - question page:
-            - current question
-            - answer selection form:
-              - red, green, both radio buttons
-                or
-              - rps options
-          - waiting page: 
-            - player answer/throw (red, green, both indicator)
-          - answer page:
-            - player answer/throw (red, green, both indicator)
-            - indication of correct answer/host throw
-   - registration page
-     - server keeps track of players still alive in a round
-       - admin decides when to make next question visible
-       - game is played in 'rounds'
-       - rock, paper, scissors - online
-         - admin interface
-             - number voted
-               - number rock, paper, scissors
-               - number still voting
-               - current round number
+ - have 2 interfaces:
+   - player interface
+      - player interface:
+        - shows always:
+          - player alias
+          - eliminated status (still in or not)
+        - question page:
+          - current question
+          - answer selection form:
+            - red, green, both radio buttons
+              or
+            - rps options
+        - waiting page: 
+          - player answer/throw (red, green, both indicator)
+        - answer page:
+          - player answer/throw (red, green, both indicator)
+          - indication of correct answer/host throw
+   - admin interface
+     - shows page that users see
+     - also shows:
+       - game stats
+         - number voted, number still-in
+         - question number, round number
+       - game controls
+         - reveal answer
+         - go to next question
+         - reset voters
+         - declare winners
+ - registration page
+   - form to request info used for winners (and create user_id)
+     - validate user_id against conference registration numbers
+ - server keeps track of players still alive in a round
+ - game is played in 'rounds'
+ - admin decides when to make next question visible
+ - admin decides when the number still-in is small enough to "declare_winners"
 

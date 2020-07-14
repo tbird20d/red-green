@@ -2,6 +2,9 @@
 To start a new game, you can just and access the cgi script (rg.cgi)
 and click 'reset', then click 'really reset!!'
 
+See "how to test" below, for different methods of running
+a standalone local instance of a server that can serve the script.
+
 == Running under another web server ==
 To run on a machine with an existing web server,
 put rg.cgi into /usr/lib/cgi-bin, and change the
@@ -48,4 +51,51 @@ Every operation performed (link clicked, or data entry submitted)
 changes the game's data file.
 If you click on the wrong thing, or enter the wrong data, you can
 click 'undo' to revert to a previous game state.
+
+= how to test =
+== local work ==
+ - this runs the script as a single-threaded, single-process CGI
+   using a python web server
+ - cd ~/work/games/red-green ; ./start_server
+ - browse as admin:
+   - firefox: http://localhost:8000/rg.cgi?user_id=admin-game-admin
+ - browse as user:
+   - desktop: chrome chrome: http://localhost:8000/rg.cgi?user_id=one
+   - laptop: chrome: http://desktop:8000/rg.cgi?user_id=two
+
+== personal server work ==
+ - edit rg.cgi
+   - cd ~/work/games/red-green/cgi-bin
+   - vi rg.cgi
+   - ./stop-uwsgi
+   - (in other window) ./start-uwsgi
+ - browse as admin:
+   - firefox https://server-addr/rg?user_id=admin-game-admin
+ - browse as user:
+   - desktop: chrome https://server-addr/rg (register as 'one')
+   - laptop: chrome https://server-addr/rg (register as 'two')
+
+== closinggame.net work ==
+ - start server and wsgi gateway
+   - systemctl start nginx (if not already running)
+   - cd ~/work/games/red-green
+   - ./start-uwsgi
+ - edit rg.cgi
+   - cd ~/work/games/red-green
+   - vi rg.cgi
+ - browse as admin:
+   - firefox https://closinggame.net/rg?user_id=admin-game-admin
+ - browse as user:
+   - timdesk: chrome https://closinggame.net/rg (register as 'one')
+   - laptop: chrome https://closinggame.net/rg (register as 'two')
+
+== linux laptop work ==
+ - this runs the script as a single-threaded, single-process CGI
+   using a python web server
+ - cd ~/work/games/red-green ; ./start_miki_server
+ - browse as admin:
+   - firefox: http://localhost:8000/rg.cgi?user_id=admin-game-admin
+ - browse as user:
+   - desktop: chrome chrome: http://localhost:8000/rg.cgi?user_id=one
+   - laptop: chrome: http://desktop:8000/rg.cgi?user_id=two
 
