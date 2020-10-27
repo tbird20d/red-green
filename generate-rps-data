@@ -4,6 +4,18 @@
 #   of the red-green game
 #
 # use with: generate-rps-data >rps.py
+# use:
+#   $ generate-rps-data >rps-candidate.py
+#
+# then examine data for desired randomness
+#   $ vi rps-candidate.py
+#
+# then make it live:
+#   $ cp rps-candidate.py rgdata/rps.py
+#
+# and restart uwsgi:
+#   $ ./stop_uwsgi
+#   $ ./start_uwsgi
 #
 
 import random
