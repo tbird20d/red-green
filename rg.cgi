@@ -1990,7 +1990,10 @@ If so, click on the link below to really reset the game:<br>
         keys = data.keys()
         keys.sort()
         for name in keys:
-            value = data[name]
+            if not name in data.game_attr_list:
+                continue
+
+            value = getattr(data, name)
             data.html_append("""
 <tr>
 <TD BGCOLOR="#dddddd" WIDTH="55%%">
@@ -2009,8 +2012,9 @@ If so, click on the link below to really reset the game:<br>
     elif action == "set_values":
         # set values from the form
         for name in data.keys():
-            value = form[name].value
-            data[name] = value
+            if name in data.game_attr_list:
+                value = form[name].value
+                data[name] = value
         data.html_append("Set values for game from form data!!")
         write_game_data(data)
 
