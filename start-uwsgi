@@ -2,4 +2,4 @@
 #
 # start-uwsgi - script to start uwsgi gateway
 
-uwsgi  --socket 127.0.0.1:3031 --master --plugin python --wsgi-file /home/tbird/work/games/red-green/rg.cgi --processes 4 --threads 4 --logto /var/log/uwsgi/app/rg.log
+uwsgi  --socket 127.0.0.1:3031 --master --plugin python --wsgi-file /home/tbird/work/games/red-green/rg.cgi --processes 4 --threads 4 --logto /var/log/uwsgi/app/rg.log &
