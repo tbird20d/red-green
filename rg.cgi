@@ -21,6 +21,7 @@ import sys
 import os
 import cgi
 import re
+import copy
 import cgitb
 
 #cgitb.enable(display=0, logdir="/home/tbird/work/tbwiki-data/grow/files")
@@ -177,6 +178,7 @@ class data_class(object):
         self.image_url = IMAGE_URL
         self.rps_image_size = 80
         self.mode = default_mode
+        self.user = None
 
         # here is the game data
         self.game_attr_list = ['sequence', 'winner_group', 'phase',
@@ -393,7 +395,7 @@ def read_game_data_from_last_file(data):
                 max_filename = filename
 
     if max_filename == "no-game-data-file":
-        return stub_data
+        return copy.deepcopy(stub_data)
 
     last_game_filename = data_dir + max_filename
     return read_game_data(data, last_game_filename)
@@ -1282,6 +1284,9 @@ def html_start(data, user, refresh=False):
 <table border="1" bgcolor="DDDDDD"><tr>
 """ % (refresh_str))
 
+    # FIXTHIS - do this later, to get rid of user parameter above
+    #user = data.user
+
     if user and user.logged_in:
         data.html_append("<td>&nbsp;Logged in as: <b>%s</b>&nbsp;</td>\n" % user.alias)
     else:
@@ -1762,6 +1767,7 @@ specified.  Please use correct Event Confirmation Number.""" % user_id)
         user = create_user(user_id, alias, name, email)
         user.logged_in = True
 
+    data.user = user
 
     if data.phase == "registration":
         # start user as still-in the game
@@ -1957,7 +1963,7 @@ If so, click on the link below to really reset the game:<br>
 
     elif action == "really_reset":
         # save initial variables...
-        reset_data = stub_data
+        reset_data = copy.deepcopy(stub_data)
 
         # remove all undo sequence files
         remove_undo_data_files()
