@@ -22,12 +22,14 @@ import os
 import cgi
 import re
 import copy
-import cgitb
+import time
 
-VERSION=(1, 1, 0)
+import cgitb
 
 #cgitb.enable(display=0, logdir="/home/tbird/work/tbwiki-data/grow/files")
 cgitb.enable()
+
+VERSION=(1, 1, 0)
 
 # turn this on to show the game data in the admin view
 # (for debugging)
@@ -423,6 +425,10 @@ def read_game_data(data, game_filename):
                 setattr(data, name, value)
 
     data.game_filename = game_filename
+    try:
+        data.game_file_mtime = os.path.getmtime(game_filename)
+    except:
+        data.game_file_mtime = time.time()
     return data
 
 ######################################################
@@ -510,6 +516,7 @@ def show_status_counts(data):
 
     last_question = len(tdata.keys())
     last_round = len(rps_data.keys())
+    last_update_time = time.time() - data.game_file_mtime
 
     data.html_append('Game status:<br><table border="1"><tr>')
     data.html_append('<td>registered users</td>')
@@ -517,6 +524,7 @@ def show_status_counts(data):
     data.html_append('<td width="10px">&nbsp;</td>')
     data.html_append('<td>sequence</td><td>phase</td><td>state</td>')
     data.html_append('<td>question</td><td>round</td>')
+    data.html_append('<td>last update time</td>')
     data.html_append('</tr><tr>')
     data.html_append('<td align="center">%d</td>' % user_count)
     data.html_append('<td align="center">%d</td>' % answers)
@@ -527,6 +535,7 @@ def show_status_counts(data):
     data.html_append('<td align="center">"%s"</td>' % data.state)
     data.html_append('<td align="center">%d of %d</td>' % (data.question_num, last_question))
     data.html_append('<td align="center">%d of %d</td>' % (data.round_num, last_round))
+    data.html_append('<td align="center">%3.1f</td>' % (last_update_time))
     data.html_append('</tr></table>')
 
 ######################################################
