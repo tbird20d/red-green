@@ -11,14 +11,20 @@
 # the question text and answer text may include format
 # strings to reference images, like so: %(image_url)s
 #
-# todo:
-#  - replace '' with '
+# any bare percents need to be escaped '%' -> '%%'
+# 
+# single quotes are escaped.  This is not needed inside """ blocks
+# by python, but vim doesn't handle it and if not escaped it messes
+# up vim's syntax highlighting.
+#
 #
 
 tdata = {
 1: [
       """
           [Warmup question] What is the latest official Linux kernel?
+          <br>
+          <img src="%(image_url)s/tux.png" height="100">
       """,
 
 "v5.9.3",
@@ -30,7 +36,7 @@ tdata = {
 The latest official kernel available is the latest release candidate
 from Linus Torvalds.
 <p>
-Release candidates aren''t  "released" kernels, but they are official.
+Release candidates aren\'t  "released" kernels, but they are official.
 Besides - the current release kernel is 5.9.1, not 5.9.4
 """,
 ],
@@ -39,6 +45,8 @@ Besides - the current release kernel is 5.9.1, not 5.9.4
 """
 Microsoft has begun shipping the Linux kernel to many of their
 Windows customers.
+          <br>
+          <img src="%(image_url)s/mslogo.jpg" height="100">
 """,
 "True",
 "False",
@@ -57,8 +65,12 @@ Source:
 
 3: [
 """
+<table><tr><td>
 The famous Book of Kells is an "Illuminated Manuscript" created in the
 9th century.  Where can you view it today?
+</td><td>
+<img src="%(image_url)s/book-of-kells.jpg" height="200">
+</td></tr></table>
 """,
 
 "Abbey of Kells",
@@ -66,10 +78,12 @@ The famous Book of Kells is an "Illuminated Manuscript" created in the
 "National Museum of Ireland",
 "red",
 """
-
-
-The Book of Kells is famous for its elaborate artwork, and is
-considered one of Ireland''s greatest cultural treasures.
+<table><tr><td>
+<img src="%(image_url)s/trinity-college-library.jpg" height="200">
+</td><td>
+The Book of Kells is housed in the Trinity College Library (but not in the "Long Hall", pictured here).  The book is famous for its elaborate artwork, and is
+considered one of Ireland\'s greatest cultural treasures.
+</td></tr></table>
 <p>
 Source:
 <ul>
@@ -84,8 +98,8 @@ There has been work recently to remove what obnoxious code
 pattern from the Linux kernel?
 
 """,
-"comma separated statements (e.g. a=1,b=2;)",
-"variable length arrays (u8 s[bsize * 2];)",
+"comma separated statements (e.g. <i>a=1,b=2;</i>)",
+"variable length arrays (e.g. <i>u8 s[bsize*2];</i>)",
 "",
 "green",
 """
@@ -105,7 +119,11 @@ Sources:
 
 5: [
 """
+<table><tr><td>
 What noted science fiction author created the 3 laws of robotics?
+</td><td>
+<img src="%(image_url)s/robot.jfif" height="200">
+</td></tr></table>
 """,
 "Arthur C. Clark",
 "Isaac Asimov",
@@ -114,7 +132,7 @@ What noted science fiction author created the 3 laws of robotics?
 """
 
 Isaac Asimov attributed the Three Laws to John W. Campbell, from a
-conversation that took place on 23 December, 1940.  But I can''t in
+conversation that took place on 23 December, 1940.  But I can\'t in
 good conscience exclude Asimov from the answer.
 <p>
 Source:
@@ -129,6 +147,8 @@ Source:
 """
 
 Isaac Asimov wrote which epic science fiction series of novels?
+<br>
+<img align="center" src="%(image_url)s/asimov.jpeg" height="200">
 
 """,
 "Dune",
@@ -137,9 +157,13 @@ Isaac Asimov wrote which epic science fiction series of novels?
 "red",
 """
 
+<table><tr><td>
 The Foundation series describes the fall of the galactic empire.
 Frank Herber wrote Dune.  Both series will be available in video form
 in 2021!
+</td><td>
+<img src="%(image_url)s/foundation-book.jpg" height="200">
+</td></tr></table>
 <p>
 Source:
 <ul>
@@ -151,10 +175,10 @@ Source:
 
 7: [
 """
-
 The 5.8 kernel consists of 69,325 files and 28442673 lines of code.
 How many files were in the first release of Linux in 1991?
-
+<p>
+<img src="%(image_url)s/linux-1991.jpg" height="200">
 """,
 "37 files",
 "88 files",
@@ -178,6 +202,8 @@ https://www.linuxfoundation.org/wp-content/uploads/2020/08/2020_kernel_history_r
 Scientists recently demonstrated a device that harvests usable
 electricity from "Brownian current" at room temperature, with no
 moving parts and no heat transfer.
+<p>
+<img src="%(image_url)s/brownian-current.jpeg" height="200">
 
 """,
 "True",
@@ -190,6 +216,8 @@ In a demonstration of "stochastic thermodynamics", the
 scientists use one-way diodes and the ripple of Brownian current in
 graphene to produce an electrical charge capable of putting a load on
 a resistor.
+<p>
+<img src="%(image_url)s/graphene-electricity-harvester.PNG" height="200">
 <p>
 
 
@@ -204,6 +232,8 @@ Source:
 9: [
 """
 How many emails were sent to the Linux Kernel Mailing List (LKML) in 2019?
+<p>
+<img src="%(image_url)s/full-mailbox.jpeg" height="200">
 
 """,
 "more than 400,000",
@@ -227,8 +257,12 @@ https://www.linuxfoundation.org/wp-content/uploads/2020/08/2020_kernel_history_r
 10: [
 """
 
+<table><tr><td>
 What is the official name of the character that "The
 Mandalorian" protects?
+</td><td>
+          <img src="%(image_url)s/baby-yoda.png" height="200">
+</td></tr></table>
 
 """,
 "Baby Yoda",
@@ -239,6 +273,8 @@ Mandalorian" protects?
 
 Although fans named the character "Baby Yoda", the child is never
 referred to by that name in the series.
+<p>
+<img src="%(image_url)s/mandalorian.png" height="200">
 <p>
 Source:
 <ul>
@@ -269,7 +305,8 @@ A magnon is a quasi-particle, and is a quanta of spin-wave. The waves
 are formed by distortions in the magnetic order of a solid material on
 the quantum level.
 <p>
-
+<img src="%(image_url)s/magnon-circuit.jpg" height="200">
+<p>
 
 Source:
 <ul>
@@ -280,7 +317,11 @@ Source:
 
 12: [
 """
+<table><tr><td>
 What is the closest that Linux has gotten to the planet Mars?
+</td><td>
+<img src="%(image_url)s/mars.jpg" height="200">
+</td></tr></table>
 
 """,
 "0 kilometers (on the surface)",
@@ -293,6 +334,13 @@ Cubesats running Linux deployed in low Mars orbit in November of 2018.
 A Tesla car (running Linux?) has an orbit that occasionally gets close
 to Mars.  It recently passed within 8 million kilometers of the
 planet.
+<table><tr><td>
+<img src="%(image_url)s/cubesat-over-mars.jpg" height="150">
+</td><td width="20%%">
+&nbsp;
+</td><td>
+<img src="%(image_url)s/Roadster_Earth.png" height="150">
+</td></tr></table>
 <p>
 None of the Mars landers have incorporated Linux.
 <p>
@@ -311,6 +359,8 @@ Sources:
 
 In 2019, there were over 4,200 contributors to the Linux kernel.  In
 what year did the number of contributors first surpass 1000?
+<p>
+<img src="%(image_url)s/developer-conference.jpg" height="150">
 
 """,
 "2005",
@@ -334,8 +384,12 @@ https://www.linuxfoundation.org/wp-content/uploads/2020/08/2020_kernel_history_r
 14: [
 """
 
+<table><tr><td>
 The movie Tenet incorporates elements from which of these ancient
 puzzle devices?
+</td><td>
+<img src="%(image_url)s/tenet_poster_scaled.jpg" height="300">
+</td></tr></table>
 
 """,
 "the Sator square",
@@ -343,10 +397,13 @@ puzzle devices?
 "the Antikythera mechanism",
 "green",
 """
-
+<table><tr><td>
 All of the words of the Sator square are used in the movie.  The
 square can be read  forwards and backwards, which ties in with the
 theme of the movie.
+</td><td valign="middle">
+<img src="%(image_url)s/Sator_Square.jpg" height="200">
+</td></tr></table>
 
 """,
 ],
@@ -356,6 +413,17 @@ theme of the movie.
 
 What language, besides C and assembly, has recently been discussed as
 being possibly supported for kernel development?
+<table><tr><td>
+<img src="%(image_url)s/go-logo.png" height="80">
+</td><td width="10%%">
+&nbsp;
+</td><td>
+<img src="%(image_url)s/rust-logo.png" height="80">
+</td><td width="10%%">
+&nbsp;
+</td><td>
+<img src="%(image_url)s/c++-logo.png" height="80">
+</td></tr></table>
 
 """,
 "Go",
@@ -367,6 +435,8 @@ being possibly supported for kernel development?
 Linus said that kernel developers are looking at having interfaces so
 that a driver could be written in Rust.  The kernel core would
 continue to only allow C and assembly.
+<p>
+<img src="%(image_url)s/rust-logo.png" height="100">
 <p>
 Source
 <ul>
@@ -381,7 +451,8 @@ Source
 
 The Civil Infrastructure Platform intends to maintain their Super Long
 Term Support Linux kernel for how many years?
-
+<p>
+<img src="%(image_url)s/cip-logo.png" height="100">
 """,
 "10 years",
 "20 years",
@@ -389,9 +460,13 @@ Term Support Linux kernel for how many years?
 "green",
 """
 
+<table><tr><td>
 The CIP project currently plans 10 years of support. However, there is
 talk of needing to maintain some kernels deployed in civil
 infrastructure for up to 50 years.
+</td><td>
+<img src="%(image_url)s/10-years.jpeg" height="100">
+</td></tr></table>
 <p>
 
 Source:
@@ -405,8 +480,11 @@ https://static.sched.com/hosted_files/osseu2020/4e/Oct26_UpstreamFirstIsOurPrinc
 
 17: [
 """
+<table><tr><td>
 The original RoboCop used what operating system?
-
+</td><td>
+<img src="%(image_url)s/robocop.png" height="120">
+</td></tr></table>
 """,
 "DOS",
 "Amiga OS",
@@ -418,15 +496,21 @@ As can be seen in the 1987 movie, the boot sequence includes
 command.com, config.sys, and other DOS-related files.
 <p>
 Source:
+<table><tr><td valign="middle">
 <ul>
-<li>	This screenshot:
+  <li>This screenshot:
 </ul>
+</td><td>
+<img src="%(image_url)s/robocop-boot.png" height="200">
+</td></tr></table>
 """,
 ],
 
 18: [
 """
 When is the millionth commit expected to be accepted into the Linux kernel?
+<p>
+<img src="%(image_url)s/million.jpeg" height="60">
 
 """,
 "before March 2021 ",
@@ -435,7 +519,8 @@ When is the millionth commit expected to be accepted into the Linux kernel?
 "green",
 """
 
-It already happened, in August of 2020
+It already happened, in August of 2020. It was mentioned in Jim Zemlin's
+keynote.
 <p>
 Source:
 <ul>
@@ -450,6 +535,8 @@ Source:
 
 In September it was announced that ARM Holdings was set to be acquired
 by what company?
+<p>
+<img src="%(image_url)s/arm-chip.jpeg" height="100">
 
 """,
 "SoftBank",
@@ -460,7 +547,7 @@ by what company?
 NVidia has offered to acquire ARM Holdings <i>from</i> SoftBank
 for $40 billion.
 <p>
-Source
+Source:
 <ul>
 <li>https://arstechnica.com/gadgets/2020/09/nvidia-reportedly-to-acquire-arm-holdings-from-softbank-for-40-billion/
 </ul>
@@ -473,6 +560,8 @@ Source
 After many years of mostly-successful fundraising, in 2020 Wikipedia
 broke down and accepted government funding, under strict policy that
 it not interfere with editorial decision-making.
+<p>
+<img src="%(image_url)s/wikipedia-logo.jpeg" height="100">
 
 """,
 "True",
@@ -487,7 +576,7 @@ to the Wikimedia foundation.  Also, they did announce some changes to
 their page design coming in the near future (before their 20th
 anniversary in 2021).
 <p>
-Source
+Source:
 <ul>
 <li>https://diff.wikimedia.org/2020/09/23/wikipedia-is-getting-a-new-look-for-the-first-time-in-10-years-heres-why/
 </ul>
@@ -508,7 +597,7 @@ Which is it?
 "red",
 """
 
-Google''s service is called "Hold for Me".  Amazon is releasing a
+Google\'s service is called "Hold for Me".  Amazon is releasing a
 product called the Ring Dash Cam, which has a "Traffic Stop",
 feature as described.
 <p>
@@ -526,6 +615,8 @@ Sources:
 A glasses-free "holographic" display, which uses eye tracking
 and the Unreal game engine to present a 3-dimensional view to the
 user, just came on the market.
+<p>
+<img src="%(image_url)s/hologram-car.png" height="100">
 
 """,
 "True",
@@ -538,6 +629,8 @@ The Sony "Spatial Reality Display" costs $5000, and is targeted at
 industrial and commercial designer.  It does both parallax and
 occlusion based on eye position, and shows different images for each
 eye using a lenticular display.
+<p>
+<img src="%(image_url)s/sonysrd.jpg" height="100">
 <p>
 
 Sources:
@@ -552,10 +645,14 @@ Sources:
 23: [
 """
 
+<table><tr><td>
 Microsoft has announced plans to allow users to convert their Windows
 System for Linux into a standalone product capable of running Windows
 applications. This product would still require a Windows license by
 the consumer.
+</td><td>
+<img src="%(image_url)s/windows-system-for-linux.png" height="300">
+</td></tr></table>
 
 """,
 "True",
@@ -577,8 +674,16 @@ Source:
 24: [
 """
 
-Which Sith Lord said: "I am altering the deal. Pray I don''t alter it
+Which Sith Lord said: "I am altering the deal. Pray I don\'t alter it
 any further"?
+
+<table><tr><td>
+<img src="%(image_url)s/darth-vader.jpg" height="150">
+</td><td width="20%%">
+&nbsp;
+</td><td>
+<img src="%(image_url)s/darth-sidious.jpg" height="150">
+</td></tr></table>
 
 """,
 "Darth Vader",
@@ -588,14 +693,17 @@ any further"?
 """
 
 Darth Vader breaks his word to Lando Calrisian about letting Princess
-Leia and Wookie stay in cloud city under Lando''s supervision.
-
+Leia and Wookie stay in cloud city under Lando\'s supervision.
+<p>
+<img src="%(image_url)s/darth-vader-cloud-city.jpg" height="100">
 """,
 ],
 
 25: [
 """
 How old is the Yocto Project?
+<p>
+<img src="%(image_url)s/yocto-project-logo.png" height="100">
 
 """,
 "10 years old",
@@ -607,12 +715,13 @@ How old is the Yocto Project?
 The official announcement of the Yocto Project was made at ELC Europe
 in Cambridge, UK in October of 2010.
 <p>
-
+<img src="%(image_url)s/10-years.jpeg" height="100">
+<p>
 
 Source:
 <ul>
 <li>Tim Bird - I was there
-<li>Also, it was announced in this ELCE''s keynote address on Monday
+<li>Also, it was announced in this ELCE\'s keynote address on Monday
 </ul>
 	
 """,
@@ -620,7 +729,11 @@ Source:
 
 26: [
 """
+<table><tr><td valign="middle">
 Who has the most code in the linux kernel?
+</td><td>
+<img src="%(image_url)s/coder.jfif" height="100">
+</td></tr></table>
 """,
 "Linus Torvalds",
 "Alex Duecher",
@@ -628,9 +741,11 @@ Who has the most code in the linux kernel?
 "red",
 """
 
-According to cregit for 5.7, it is Alex.  Linus said he doesn''t do
-much programming anymore (he''s more like a manager), and even these
+According to cregit for 5.7, it is Alex.  Linus said he doesn\'t do
+much programming anymore (he\'s more like a manager), and even these
 stats for pre-git probably include lots of source from other people.
+<p>
+<img src="%(image_url)s/authors-cregit.PNG" height="100">
 <p>
 
 Source:
@@ -645,6 +760,8 @@ Source:
 """
 
 A significant security exploit in the "spectre" family is called what?
+<p>
+<img src="%(image_url)s/zombie-hand.jfif" height="100">
 
 """,
 "Zombieland",
@@ -653,7 +770,15 @@ A significant security exploit in the "spectre" family is called what?
 "red",
 """
 
+<table><tr><td>
 ZombieLand is a movie
+</td><td>
+<img src="%(image_url)s/zombieland.jpg" height="100">
+</td><td>
+<font size="+1">&nbsp;&nbsp;is not&nbsp;&nbsp;</font>
+</td><td>
+<img src="%(image_url)s/zombieload.jpg" height="100">
+</td></tr></table>
 
 """,
 ],
@@ -661,6 +786,8 @@ ZombieLand is a movie
 28: [
 """
 One of the interesting features of the Dublin Convention Center is:
+<p>
+<img src="%(image_url)s/dublin-convention-center.jpg" height="100">
 
 """,
 "The facility has breakout rooms can be rotated into the main keynote auditorium",
@@ -687,6 +814,8 @@ Source:
 
 Can the Linux scheduler can take into account the thermal status of a
 processor?
+<p>
+<img src="%(image_url)s/hot-cpu.jfif" height="100">
 
 """,
 
@@ -714,6 +843,8 @@ Source:
 After 13 long years out-of-tree, the PREEMPT_RT patch set is now
 poised to be accepted into mainline.  The initial kconfig entry has
 already been accepted.
+<p>
+<img src="%(image_url)s/stopwatch.jfif" height="100">
 
 """,
 
@@ -725,6 +856,8 @@ already been accepted.
 
 The kconfig entry for PREEMPT_RT was added in the 5.3 kernel.  See
 kernel/Kconfig.preempt.
+<p>
+<img src="%(image_url)s/shark-with-laser.jpg" height="150">
 
 """,
 ],
@@ -733,6 +866,8 @@ kernel/Kconfig.preempt.
 """
 
 Despite being bitten by a penguin, Linus Torvalds likes penguins. 
+<p>
+<img src="%(image_url)s/penguin-suspects.jpg" height="140">
 
 """,
 "True",
@@ -743,7 +878,7 @@ Despite being bitten by a penguin, Linus Torvalds likes penguins.
 
 Linus was bitten by a penguin
 in 1993 while in Australia for a
-speaking engagement.  But he''s OK with them now.
+speaking engagement.  But he\'s OK with them now.
 <p>
 Source:
 <ul>
@@ -755,10 +890,12 @@ Source:
 
 32: [
 """
-Linux was first called:
+What was Linux first called:
+<p>
+<img src="%(image_url)s/linus.png" height="200">
 
 """,
-"Linus'' Unix",
+"Linus\' Unix",
 "Freax",
 "",
 "red",
@@ -770,6 +907,7 @@ Source:
 <ul>
 <li>https://en.wikipedia.org/wiki/History_of_Linux
 </ul>
+<i>And to think, we could have had the "Embedded Freax Conference"</i>
 
 """,
 ],
@@ -781,7 +919,7 @@ Which of the following quotes did Rusty Russel have in his e-mail
 signature?
 
 """,
-"\"There are those who do and those who hang on and you don''t see too many doers quoting their contemporaries.\" -- Larry McVoy",
+"\"There are those who do and those who hang on and you don\'t see too many doers quoting their contemporaries.\" -- Larry McVoy",
 "\"Anyone who quotes me in their sig is an idiot.\" -- Rusty Russell",
 "",
 "red|green",
@@ -798,6 +936,8 @@ signatures at different times.
 
 The Linux Foundation has become the home to many open source projects.
 How many LF projects are there currently?
+<p>
+<img src="%(image_url)s/Linux-Foundation_logo.png" height="120">
 
 """,
 
@@ -806,11 +946,11 @@ How many LF projects are there currently?
 "",
 "red",
 """
-It''s hard to count, since new projects are created regularly. 
+It\'s hard to count, since new projects are created regularly. 
 <p>
 There are 177 projects listed here:
 https://www.linuxfoundation.org/projects/directory/ and there are some
-I''m aware of that are not listed.
+I\'m aware of that are not listed.
 
 """,
 ],
@@ -820,6 +960,8 @@ I''m aware of that are not listed.
 
 On average, how many patches per hour were contributed to the Linux
 5.7 release?
+<p>
+<img src="%(image_url)s/assembly-line.jfif" height="200">
 
 """,
 "about 9",
@@ -844,6 +986,8 @@ Source:
 
 A patch to add Syscall User Dispatch was accepted into the Linux
 kernel in version 5.8.
+<p>
+<img src="%(image_url)s/dispatch.jpg" height="100">
 
 """,
 "True",
