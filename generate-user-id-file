@@ -1,0 +1,27 @@
+#!/bin/sh
+# generate-user-id-file - take a file with a list of user ids:
+# like these:
+#
+# NCN3ZJPBXNL
+# GZNWKWQQKCX
+# FBNVX3ZXcZ2
+#
+# and turn them into a valid_user_id.py file
+#
+# Usage: generate-user-id-file <id-file> >valicd_user_ids.py
+#
+
+if [ -z "$1" ] ; then
+    echo "Missing required id-file name"
+    echo "Usage: generate-user-id-file <id-file> >valid_user_ids.py"
+    exit 1
+fi
+
+# header
+echo "valid_user_ids = [ \"admin-game-admin\","
+
+# body
+cat $1 | sed "s/^/    \"/" | sed "s/$/\",/"
+
+# trailer
+echo "]"
