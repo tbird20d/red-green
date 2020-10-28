@@ -24,6 +24,8 @@ import re
 import copy
 import cgitb
 
+VERSION=(1, 1, 0)
+
 #cgitb.enable(display=0, logdir="/home/tbird/work/tbwiki-data/grow/files")
 cgitb.enable()
 
