@@ -1314,6 +1314,10 @@ def html_start(data, user, refresh=False):
 def show_admin_controls(data):
     d = {"url": data.url}
     d["sequence"] = data.sequence
+    if default_suppress_refresh:
+        d["refresh"] = "(currently off)"
+    else:
+        d["refresh"] = "(currently on)"
 
     # show admin controls
     data.html_append("""<p>Game controls:<br>
@@ -1322,7 +1326,7 @@ def show_admin_controls(data):
 <td><a href="%(url)s?action=undo">undo</a></td>
 <td><a href="%(url)s?action=edit_game">edit game</a></td>
 <td><a href="%(url)s?action=restore_still_ins">restore_still_ins</a></td>
-<td><a href="%(url)s?action=toggle_refresh">toggle_refresh</a></td>
+<td><a href="%(url)s?action=toggle_refresh">toggle_refresh</a> %(refresh)s</td>
 <td><a href="%(url)s?action=reset">reset</a></td>
 </tr>""" % d)
 
