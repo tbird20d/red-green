@@ -1121,7 +1121,7 @@ def show_result_page(data, answer):
     d["rps_image_size"] = data.rps_image_size
 
     data.html_append("""
-You chose a "throw":
+You chose to "throw":
 <ul>
 <table>
   <tr>
