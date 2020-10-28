@@ -197,6 +197,8 @@ class data_class(object):
         self.question_num = 1
         self.round_num = 1
 
+        self.game_file_mtime = 0
+
     def set_data(self, new_data):
         for key in new_data.__dict__.keys():
             if key in self.game_attr_list:
