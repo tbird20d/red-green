@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
 #
 # Copyright 2020 by Sony Corporation
@@ -200,12 +200,12 @@ class data_class(object):
         self.game_file_mtime = 0
 
     def set_data(self, new_data):
-        for key in new_data.__dict__.keys():
+        for key in list(new_data.__dict__.keys()):
             if key in self.game_attr_list:
                 self.__dict__[key] = new_data.__dict__[key]
 
     def __getitem__(self, key):
-        if self.data.has_key(key):
+        if ken in self.data:
             item = self.data[key]
         elif hasattr(self, key):
             item = getattr(self, key)
@@ -221,18 +221,21 @@ class data_class(object):
         self.data[key] = value
 
     def has_key(self, key):
-        return self.data.has_key(key)
+        return key in self.data
 
     def keys(self):
         # FIXTHIS - are the __dict__ keys needed?
-        keys = self.__dict__.keys()
-        keys.append(self.data.keys())
+        keys = list(self.__dict__.keys())
+        keys.extend(list(self.data.keys()))
         return keys
 
 ######################################################
 
     def html_append(self, html):
-        self.html.append(html)
+        if isinstance(html, str):
+            self.html.append(html.encode("utf-8"))
+        else:
+            self.html.append(html)
 
     def emit_html(self):
         for hline in self.html:
@@ -240,14 +243,14 @@ class data_class(object):
         self.html = []
 
     def add_error_message(self, msg):
-        self.err_msg_list.append('<font color="red">ERROR: %s<br></font>' % msg)
+        self.err_msg_list.append(b'<font color="red">ERROR: %s<br></font>' % msg)
         # give time for user to see error
         self.refresh_count = 10
 
     def get_errors_as_html(self):
-        html = ""
+        html = b""
         if self.err_msg_list:
-            html += '<table bgcolor="pink"><tr><td>\n'
+            html += b'<table bgcolor="pink"><tr><td>\n'
             last_msg = self.err_msg_list[-1]
             for msg in self.err_msg_list:
                 html += msg+"\n"
@@ -261,7 +264,7 @@ class data_class(object):
         self.notice_list.append('<font color="green">NOTE: %s<br></font>' % msg)
 
     def get_notices_as_html(self):
-        html = ""
+        html = b""
         if self.notice_list:
             html += '<table bgcolor="lime"><tr><td>\n'
             last_msg = self.notice_list[-1]
@@ -444,7 +447,7 @@ def write_game_data(data):
     data.game_filename = game_filename
 
     fd = open(game_filename, "w")
-    klist = data.keys()
+    klist = list(data.keys())
     klist.sort()
     for name in klist:
         if name in data.game_attr_list:
@@ -516,8 +519,8 @@ def get_status_counts(data):
 def show_status_counts(data):
     (user_count, answers, still_in) = get_status_counts(data)
 
-    last_question = len(tdata.keys())
-    last_round = len(rps_data.keys())
+    last_question = len(list(tdata.keys()))
+    last_round = len(list(rps_data.keys()))
     last_update_time = time.time() - data.game_file_mtime
 
     data.html_append('Game status:<br><table border="1"><tr>')
@@ -1270,12 +1273,12 @@ def html_start(data, user, refresh=False):
     # for CGI, output the HTTP headers ourself, at the start of HTML
     # WSGI will output them separately in the application() function
     if not data.is_wsgi:
-        html = ""
+        html = b""
         if not data.header_shown:
-            html += "Content-type: text/html\n"
+            html += b"Content-type: text/html\n"
             if data.cookie:
                 html += data.cookie
-            html += '\n\n'
+            html += b'\n\n'
             data.header_shown = True
         data.html_append(html)
 
@@ -1367,7 +1370,7 @@ def show_admin_controls(data):
         if data.state == "answer" or data.state == "winners":
             d["next_question"] = '<a href="%(url)s?action=next_question">next_question</a>' % d
 
-    last_question = max([int(k) for k in tdata.keys()])
+    last_question = max([int(k) for k in list(tdata.keys())])
     if data.question_num >= last_question:
         # disable 'next question' link on admin page for last question
         d["next_question"] = "next_question (disabled)"
@@ -1401,7 +1404,7 @@ def show_admin_controls(data):
             d["next_round"] = '<a href="%(url)s?action=next_round">next_round</a>' % d
 
 
-    last_round = max([int(k) for k in rps_data.keys()])
+    last_round = max([int(k) for k in list(rps_data.keys())])
     if data.round_num >= last_round:
         # disable 'next round' link on admin page for last question
         d["next_round"] = "next_round (disabled)"
@@ -2010,7 +2013,7 @@ If so, click on the link below to really reset the game:<br>
 <INPUT type=hidden name="action" value="set_values">
 <table border=0>
 """ % data.url)
-        keys = data.keys()
+        keys = list(data.keys())
         keys.sort()
         for name in keys:
             if not name in data.game_attr_list:
@@ -2034,7 +2037,7 @@ If so, click on the link below to really reset the game:<br>
 
     elif action == "set_values":
         # set values from the form
-        for name in data.keys():
+        for name in list(data.keys()):
             if name in data.game_attr_list:
                 value = form[name].value
                 data[name] = value
@@ -2086,11 +2089,11 @@ If so, click on the link below to really undo 1 game step:<br>
 ######################################################
 
 def dict_to_html(d):
-    keys = d.keys()
+    keys = list(d.keys())
     keys.sort()
-    html = ""
+    html = b""
     for key in keys:
-        html += "<b>%s</b>=%s<br>" % (key, d[key])
+        html += b"<b>%s</b>=%s<br>" % (key, d[key])
     return html
 
 ######################################################
