@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 # SPDX-License-Identifier: MIT
 #
 # Copyright 2020 by Sony Corporation
@@ -26,10 +27,10 @@ import time
 
 import cgitb
 
-#cgitb.enable(display=0, logdir="/home/tbird/work/tbwiki-data/grow/files")
-cgitb.enable()
+cgitb.enable(display=0, logdir="/home/tbird/work/games/red-green/rgdata")
+#cgitb.enable()
 
-VERSION=(1, 1, 0)
+VERSION=(2, 1, 0)
 
 # turn this on to show the game data in the admin view
 # (for debugging)
@@ -45,6 +46,14 @@ still_in_backup = data_dir + "still_in_backup/"
 rfile =  data_dir + "suppress_refresh"
 default_suppress_refresh = os.path.exists(rfile)
 #default_suppress_refresh = True
+
+def log_this(msg):
+   t = time.time()
+   tfrac = int((t - int(t))*100)
+   timestamp = time.strftime("%Y-%m-%d_%H:%M:%S.") + "%02d" % tfrac
+
+   with open(data_dir+"rg.log", "a", encoding="utf-8") as f:
+       f.write("[%s] %s\n" % (timestamp, msg))
 
 # mode indicates whether we're doing a group play (with an admin game
 # moderator) or just letting a single user run through the questions
@@ -239,18 +248,20 @@ class data_class(object):
 
     def emit_html(self):
         for hline in self.html:
-            print(hline)
+            # uncomment this to enable debugging via a custom log file
+            #log_this("emitting hline: %s" % hline.decode('utf8'))
+            print(hline.decode('utf8'))
         self.html = []
 
     def add_error_message(self, msg):
-        self.err_msg_list.append(b'<font color="red">ERROR: %s<br></font>' % msg)
+        self.err_msg_list.append('<font color="red">ERROR: %s<br></font>' % msg)
         # give time for user to see error
         self.refresh_count = 10
 
     def get_errors_as_html(self):
-        html = b""
+        html = ""
         if self.err_msg_list:
-            html += b'<table bgcolor="pink"><tr><td>\n'
+            html += '<table bgcolor="pink"><tr><td>\n'
             last_msg = self.err_msg_list[-1]
             for msg in self.err_msg_list:
                 html += msg+"\n"
@@ -269,7 +280,7 @@ class data_class(object):
             html += '<table bgcolor="lime"><tr><td>\n'
             last_msg = self.notice_list[-1]
             for msg in self.notice_list:
-                html += msg+b"\n"
+                html += msg+"\n"
                 if msg != last_msg:
                     html += "<BR>\n"
             html += '</td></tr></table>\n'
@@ -305,7 +316,7 @@ class user_class(object):
                                         self.email, self.status,
                                         self.last_answer)
         user_filepath = user_dir + self.user_id
-        fd = open(user_filepath, "w")
+        fd = open(user_filepath, "w", encoding="utf-8")
         fd.write(line)
         fd.close()
 
@@ -370,7 +381,7 @@ class user_class(object):
 
         answer_filepath = answer_dir + "/" + self.user_id
         try:
-            fd = open(answer_filepath, "w")
+            fd = open(answer_filepath, "w", encoding="utf-8")
             fd.write(answer)
             fd.close()
         except:
@@ -415,7 +426,7 @@ def read_game_data_from_last_file(data):
 # they already have data
 def read_game_data(data, game_filename):
     try:
-        game_lines = open(game_filename, "r").readlines()
+        game_lines = open(game_filename, "r", encoding="utf-8").readlines()
     except:
         data.add_error_message("Warning: failed to open game data file: %s\n<p>\n" % game_filename)
         game_lines = []
@@ -446,7 +457,7 @@ def write_game_data(data):
     game_filename = data_dir + game_file_fmt % data.sequence
     data.game_filename = game_filename
 
-    fd = open(game_filename, "w")
+    fd = open(game_filename, "w", encoding="utf-8")
     klist = list(data.keys())
     klist.sort()
     for name in klist:
@@ -553,7 +564,7 @@ def get_winners(data):
     for still_in_user_id in file_list:
         user_filepath = user_dir + still_in_user_id
         try:
-            fd = open(user_filepath, "r")
+            fd = open(user_filepath, "r", encoding="utf-8")
             line = fd.readline().strip()
             user_id, alias, name, email, status, jlast_answer = \
                 line.split(',', 5)
@@ -575,7 +586,7 @@ def save_winners(data):
 
     winners = get_winners(data)
     try:
-        fd = open(winner_filepath, "w")
+        fd = open(winner_filepath, "w", encoding="utf-8")
         for w in winners:
             line = "%s,%s,%s,%s\n" % w
             fd.write(line)
@@ -1273,12 +1284,12 @@ def html_start(data, user, refresh=False):
     # for CGI, output the HTTP headers ourself, at the start of HTML
     # WSGI will output them separately in the application() function
     if not data.is_wsgi:
-        html = b""
+        html = ""
         if not data.header_shown:
-            html += b"Content-type: text/html\n"
+            html += "Content-type: text/html\n"
             if data.cookie:
                 html += data.cookie
-            html += b'\n\n'
+            html += '\n\n'
             data.header_shown = True
         data.html_append(html)
 
@@ -1475,7 +1486,7 @@ def read_user(data, user_id):
     # read user file
     user_filepath = user_dir + user_id
     try:
-        fd = open(user_filepath, "r")
+        fd = open(user_filepath, "r", encoding="utf-8")
         line = fd.readline().strip()
         fd.close()
     except:
@@ -1492,7 +1503,7 @@ def read_user(data, user_id):
         answer_filepath = answer_dir + user_id
         if os.path.exists(answer_filepath):
             try:
-                fd = open(answer_filepath)
+                fd = open(answer_filepath, encoding="utf-8")
                 last_answer = fd.read()
                 fd.close()
             except:
@@ -1508,7 +1519,7 @@ def clear_user_answers(data):
     for user_id_filename in file_list:
         user_filepath = user_dir + user_id_filename
         try:
-            fd = open(user_filepath, "r+")
+            fd = open(user_filepath, "r+", encoding="utf-8")
             line = fd.readline().strip()
             user_id, alias, name, email, status, jlast_answer = \
                 line.split(',', 5)
@@ -1545,7 +1556,7 @@ def save_still_ins():
 
     file_list = os.listdir(still_in_dir)
     for f in file_list:
-        fd = open(still_in_backup + f, "w")
+        fd = open(still_in_backup + f, "w", encoding="utf-8")
         fd.write(STILL_IN)
         fd.close()
 
@@ -1560,13 +1571,12 @@ def restore_still_ins():
 
     file_list = os.listdir(still_in_backup)
     for f in file_list:
-        fd = open(still_in_dir + f, "w")
+        fd = open(still_in_dir + f, "w", encoding="utf-8")
         fd.write(STILL_IN)
         fd.close()
 
-        user_filepath = user_dir + f
         try:
-            fd = open(user_filepath, "r+")
+            fd = open(user_filepath, "r+", encoding="utf-8")
             line = fd.readline().strip()
             user_id, alias, name, email, status, last_answer = \
                 line.split(',', 5)
@@ -1578,7 +1588,7 @@ def restore_still_ins():
             fd.truncate()
             fd.close()
         except:
-            data.add_error_message("Problem resetting status in file: %s" % \
+            data.add_error_message("Problem restoring still-in status in file: %s" % \
                 (user_filepath))
 
 ######################################################
@@ -1589,7 +1599,7 @@ def reset_user_status(data):
     for user_id_filename in file_list:
         user_filepath = user_dir + user_id_filename
         try:
-            fd = open(user_filepath, "r+")
+            fd = open(user_filepath, "r+", encoding="utf-8")
             line = fd.readline().strip()
             user_id, alias, name, email, status, last_answer = \
                 line.split(',', 5)
@@ -1606,7 +1616,7 @@ def reset_user_status(data):
 
         # add still-in file to still_in directory (new method)
         try:
-            fd = open(still_in_dir + user_id_filename, "w")
+            fd = open(still_in_dir + user_id_filename, "w", encoding="utf-8")
             fd.write(status)
             fd.close()
         except:
@@ -1641,7 +1651,7 @@ def update_user_status(data, correct_answer):
     for user_id_filename in file_list:
         user_filepath = user_dir + user_id_filename
         try:
-            fd = open(user_filepath, "r+")
+            fd = open(user_filepath, "r+", encoding="utf-8")
             line = fd.readline().strip()
             user_id, alias, name, email, status, last_answer = \
                 line.split(',', 5)
@@ -1787,7 +1797,7 @@ specified.  Please use correct Event Confirmation Number.""" % user_id)
 
     if data.phase == "registration":
         # start user as still-in the game
-        fd = open(still_in_dir + user_id,"w")
+        fd = open(still_in_dir + user_id, "w", encoding="utf-8")
         fd.write(STILL_IN)
         fd.close()
     else:
@@ -2072,7 +2082,7 @@ If so, click on the link below to really undo 1 game step:<br>
             default_suppress_refresh = False
             data.add_notice("removed %s and set 'default_suppress_refresh' to False" % rfile)
         else:
-            fd = open(rfile, "w")
+            fd = open(rfile, "w", encoding="utf-8")
             fd.write("suppress")
             fd.close()
             default_suppress_refresh = True
