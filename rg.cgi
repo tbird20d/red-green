@@ -264,12 +264,12 @@ class data_class(object):
         self.notice_list.append('<font color="green">NOTE: %s<br></font>' % msg)
 
     def get_notices_as_html(self):
-        html = b""
+        html = ""
         if self.notice_list:
             html += '<table bgcolor="lime"><tr><td>\n'
             last_msg = self.notice_list[-1]
             for msg in self.notice_list:
-                html += msg+"\n"
+                html += msg+b"\n"
                 if msg != last_msg:
                     html += "<BR>\n"
             html += '</td></tr></table>\n'
