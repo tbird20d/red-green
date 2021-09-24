@@ -1952,6 +1952,9 @@ def do_action(action, data, form, user):
         clear_user_answers(data)
         # FIXTHIS - could allow still-ins to flow from trivia to rps game
         # just in case trivia didn't knock enough out
+        # just need to remove 'make_all_users_still_in()'???
+        # NOTE: declare winners can do the make_all_users_still_in() call in
+        # case that was the last thing done before start_rps.
         make_all_users_still_in(data)
         save_still_ins()
 
