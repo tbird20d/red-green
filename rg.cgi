@@ -25,11 +25,6 @@ import re
 import copy
 import time
 
-import cgitb
-
-cgitb.enable(display=0, logdir="/home/tbird/work/games/red-green/rgdata")
-#cgitb.enable()
-
 VERSION=(2, 1, 0)
 
 # turn this on to show the game data in the admin view
@@ -90,7 +85,10 @@ game_file_fmt = "rgdata-%03d.txt"
 winner_file_fmt = "winners-%02d.txt"
 CGI_URL = "/cgi-bin/rg.cgi"
 WSGI_URL = "/rg"
-IMAGE_URL = "/images"
+if os.path.isdir("/var/www/owncloud/red-green/images"):
+    IMAGE_URL = "/red-green/images"
+else:
+    IMAGE_URL = "/images"
 
 REFRESH_SECONDS = 2
 
@@ -214,7 +212,7 @@ class data_class(object):
                 self.__dict__[key] = new_data.__dict__[key]
 
     def __getitem__(self, key):
-        if ken in self.data:
+        if key in self.data:
             item = self.data[key]
         elif hasattr(self, key):
             item = getattr(self, key)
@@ -247,10 +245,15 @@ class data_class(object):
             self.html.append(html)
 
     def emit_html(self):
+        # trick to change encoding of sys.stdout to utf8
+        #import io
+        #sys.stdout = io.open(sys.stdout.fileno(), 'w', encoding='utf8')
         for hline in self.html:
-            # uncomment this to enable debugging via a custom log file
-            #log_this("emitting hline: %s" % hline.decode('utf8'))
-            print(hline.decode('utf8'))
+            # uncomment this to enable debugging, via a custom log file
+            #log_this(hline)
+
+            # output each line as bytes
+            sys.stdout.buffer.write(hline)
         self.html = []
 
     def add_error_message(self, msg):
@@ -494,7 +497,7 @@ def reset_answers_and_users(data):
     for f in file_list:
         os.remove(still_in_dir + f)
 
-    reset_user_status(data)
+    make_all_users_still_in(data)
 
 def get_registered_user_count():
     return len(os.listdir(user_dir))
@@ -1562,7 +1565,7 @@ def save_still_ins():
 
 ######################################################
 
-def restore_still_ins():
+def restore_still_ins(data):
     # erase files in still_in_dir, and
     # copy contents of still_in_backup dir into it
     file_list = os.listdir(still_in_dir)
@@ -1575,6 +1578,7 @@ def restore_still_ins():
         fd.write(STILL_IN)
         fd.close()
 
+        user_filepath = user_dir + f
         try:
             fd = open(user_filepath, "r+", encoding="utf-8")
             line = fd.readline().strip()
@@ -1593,7 +1597,7 @@ def restore_still_ins():
 
 ######################################################
 
-def reset_user_status(data):
+def make_all_users_still_in(data):
     # change user status back to STILL_IN for all users (old method)
     file_list = os.listdir(user_dir)
     for user_id_filename in file_list:
@@ -1896,7 +1900,7 @@ def do_action(action, data, form, user):
         data.state = "question"
         write_game_data(data)
         clear_user_answers(data)
-        reset_user_status(data)
+        make_all_users_still_in(data)
         save_still_ins()
 
     elif action == "submit_answer":
@@ -1931,7 +1935,7 @@ def do_action(action, data, form, user):
 
         # after declaring winners, let everyone back into the game
         if last_state == "winners":
-            reset_user_status(data)
+            make_all_users_still_in(data)
 
     elif action == "declare_winners":
         data.state = "winners"
@@ -1946,7 +1950,9 @@ def do_action(action, data, form, user):
         data.round = "1"
         write_game_data(data)
         clear_user_answers(data)
-        reset_user_status(data)
+        # FIXTHIS - could allow still-ins to flow from trivia to rps game
+        # just in case trivia didn't knock enough out
+        make_all_users_still_in(data)
         save_still_ins()
 
     elif phase == "rps" and action == "show_result":
@@ -1971,7 +1977,7 @@ def do_action(action, data, form, user):
 
         # after declaring winners, let everyone back into the game
         if last_state == "winners":
-            reset_user_status(data)
+            make_all_users_still_in(data)
 
     elif action == "done":
         data.phase = "done"
@@ -2012,7 +2018,7 @@ If so, click on the link below to really reset the game:<br>
 """ % (data.url, data.url))
 
     elif action == "really_restore_still_ins":
-        restore_still_ins()
+        restore_still_ins(data)
 
     elif action == "edit_game":
         # show a form to set values directly
@@ -2145,6 +2151,7 @@ def get_user_id(environ, data, form):
 
 def handle_request(environ, data, form):
     user_id = get_user_id(environ, data, form)
+    #log_this("in handle_request: user_id=%s" % user_id)
     # data.add_notice("user_id from form = '%s'" % str(user_id))
     user = user_class(NOBODY_USER_ID, "not-logged-in", "", "")
     if user_id == ADMIN_USER_ID:
@@ -2180,10 +2187,15 @@ def main():
     data = read_game_data_from_last_file(pre_data)
     data.html = pre_data.html
     data.err_msg_list = pre_data.err_msg_list
+    data.url = CGI_URL
 
-    handle_request(os.environ, data, form)
-
-    data.emit_html()
+    try:
+        handle_request(os.environ, data, form)
+        data.emit_html()
+    except:
+        import traceback
+        tb = traceback.format_exc()
+        log_this(tb)
 
 def application(environ, start_response):
     form = cgi.FieldStorage(
@@ -2200,7 +2212,12 @@ def application(environ, start_response):
     data.is_wsgi = True
     data.url = WSGI_URL
 
-    handle_request(environ, data, form)
+    try:
+        handle_request(environ, data, form)
+    except:
+        import traceback
+        tb = traceback.format_exc()
+        log_this(tb)
 
     # convert data.cookie to WSGI resp_headers format (ie a tuple)
     if data.cookie:
