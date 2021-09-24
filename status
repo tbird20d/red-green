@@ -1,0 +1,44 @@
+#!/bin/sh
+#
+
+if [ -n "$1" -a "$1" = "-h" ] ; then
+   echo "Usage: status [options]"
+   echo "Show the status of questions for the red-green trivia game"
+   echo "Options:"
+   echo "  -h    Show usage help"
+   echo "  -v    Show verbose data (each question line)"
+   echo "  -r    Show remaining questions"
+   echo "  -i    Show integrated questions (in order)"
+   exit 1
+fi
+
+if [ -n "$1" -a "$1" = "-v" ] ; then
+    echo "== Questions integrated =="
+    grep "^Q" ELC-2021-trivia.txt | grep Q[.][0-9]
+    echo "== Questions remaining =="
+    grep "^Q" ELC-2021-trivia.txt | grep -v Q[.][0-9]
+    echo "========================"
+    shift
+fi
+
+if [ -n "$1" -a "$1" = "-r" ] ; then
+    echo "== Questions remaining =="
+    grep "^Q" ELC-2021-trivia.txt | grep -v Q[.][0-9]
+    echo "========================"
+    shift
+fi
+
+if [ -n "$1" -a "$1" = "-i" ] ; then
+    echo "== Questions remaining =="
+    grep "^Q" ELC-2021-trivia.txt | grep Q[.][0-9] | sed s/Q.// | sort -n
+    echo "========================"
+fi
+
+
+echo -n "Number of questions integrated: "
+grep "^Q" ELC-2021-trivia.txt | grep Q[.][0-9] | wc -l
+echo -n "Number of questions remaining: "
+grep "^Q" ELC-2021-trivia.txt | grep -v Q[.][0-9] | wc -l
+echo -n "Total number of questions: "
+grep ^Q ELC-2021-trivia.txt | wc -l
+
