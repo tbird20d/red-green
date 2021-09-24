@@ -1,0 +1,55 @@
+== quickstart ==
+To start a new game, you can just and access the cgi script (rg.cgi)
+and click 'reset', then click 'really reset!!'
+
+The main view is the admin view.  Press "player view" to see the
+screen the player would have.  Press "auto view" for an automatically
+updated (every 2 seconds) player view.
+
+== Running under another web server ==
+To run on a machine with an existing web server,
+put rg.cgi into /usr/lib/cgi-bin, and change the
+data path to where you put the trivia.py and rps.py files.  The data
+path must be read/writable by the cgi script (which means the
+web server).
+
+Then point your browser at: http://server.address/cgi-bin/rg.cgi
+for the CGI version of the script, or to
+Then point your browser at: http://server.address/rg
+for the WSGI verison of the script
+
+== Running with local web server ==
+To run on a machine without a web server, run ./start_server.
+
+Then point your browser at: http://localhost:8000/rg.cgi
+
+To log in as admin, use this url:
+http://localhost:8000/rg.cgi?user_id=admin_game_admin
+
+== Running with apache2 ==
+I added the following line to /etc/apache2/conf-available/wsgi.conf
+WSGIScriptAlias /rg /usr/lib/cgi-bin/rg.cgi
+
+== pre-game ==
+Remove user registration files in the rgdata directory
+Remove winner files in the rgdata directory
+('make clean' will do this)
+
+== Operating the game ==
+On the admin screen, you will see a menu showing controls for the game.
+
+there are 4 main phases:
+ - registration
+ - trivia
+ - rock-paper-scissors
+ - end
+
+The game progresses in 2 sets of rounds, for two different games:
+1 Red-green trivia game
+2 rock-paper-scissors game
+
+Every operation performed (link clicked, or data entry submitted)
+changes the game's data file.
+If you click on the wrong thing, or enter the wrong data, you can
+click 'undo' to revert to a previous game state.
+
