@@ -2056,12 +2056,28 @@ If so, click on the link below to really reset the game:<br>
 
     elif action == "set_values":
         # set values from the form
-        for name in list(data.keys()):
+        log_this("in set_values")
+        html_start(data, user)
+        data.html_append("Set values for game from form data!!")
+
+        for name in data.keys():
             if name in data.game_attr_list:
                 value = form[name].value
-                data[name] = value
-        data.html_append("Set values for game from form data!!")
+                if name in data.game_attr_ints:
+                    log_this("settting %s=int(%s)" % (name, value))
+                    try:
+                        data.__dict__[name] = int(value)
+                    except ValueError:
+                        msg = "Invalid value '%s' for game data '%s' - expected integer" % (value, name)
+                        log_this(msg)
+                        data.add_error_message(msg)
+                else:
+                    log_this("settting %s=%s" % (name, value))
+                    data.__dict__[name] = (value)
+
+        #log_this("data.__dict__=%s" % data.__dict__)
         write_game_data(data)
+        done = True
 
     elif action == "undo":
         data.suppress_refresh = True
