@@ -98,6 +98,8 @@ REFRESH_SECONDS = 2
 ADMIN_USER_ID = "admin-game-admin"
 ADMIN_NAME = "Tim"
 
+OBSERVER_USER_ID = "observer"
+
 NOBODY_USER_ID = "nobody-not-logged-in"
 
 # trivia.py provides the trivia data in the form of the 'tdata' dictionary
@@ -176,6 +178,7 @@ class data_class(object):
         self.html = []
         self.err_msg_list = []
         self.admin_view = False
+        self.is_observer = False
         self.notice_list = []
         self.suppress_refresh = default_suppress_refresh
         self.refresh_count = REFRESH_SECONDS
@@ -723,6 +726,7 @@ def show_qwaiting_page(data, answer):
     d["green_indicator"] = ""
     d["red_indicator"] = ""
     d["both_indicator"] = ""
+    d["you_chose"] = "You chose an answer:"
 
     if answer == "green":
         d["green_indicator"] = "<--- Your answer"
@@ -730,13 +734,13 @@ def show_qwaiting_page(data, answer):
         d["red_indicator"] = "<--- Your answer"
     elif answer == "both":
         d["both_indicator"] = "<--- Your answer"
-    elif answer == "admin-answer":
-        pass
+    elif answer == "no-answer":
+        d["you_chose"] = ""
     else:
         data.add_error_message("Invalid answer '%s' provided" % answer)
 
     data.html_append("""
-You chose an answer:
+%(you_chose)s
 <ul>
 <table>
   <tr>
@@ -818,6 +822,7 @@ def show_answer_page(data, answer):
     d["red_indicator"] = ""
     d["green_indicator"] = ""
     d["both_indicator"] = ""
+    d["you_chose"] = "You chose an answer:"
 
     if answer == "green":
         d["green_indicator"] = "<--- Your answer"
@@ -825,8 +830,8 @@ def show_answer_page(data, answer):
         d["red_indicator"] = "<--- Your answer"
     elif answer == "both":
         d["both_indicator"] = "<--- Your answer"
-    elif answer == "admin-answer":
-        pass
+    elif answer == "no-answer":
+        d["you_chose"] = ""
     else:
         data.add_error_message("Invalid answer '%s' provided" % answer)
 
@@ -850,7 +855,7 @@ def show_answer_page(data, answer):
         data.add_error_message("Invalid answer_code '%s'!!" % answer_code)
 
     data.html_append("""
-You chose an answer:
+%(you_chose)s
 <ul>
 <table>
   <tr>
@@ -873,12 +878,14 @@ You chose an answer:
     <td>%(both_indicator)s</td>
     <td>%(both_right)s</td>
 """ % d)
-
     # finish the page
-    if answer in answer_code.split("|"):
-        msg = "<h2>You got it right!!</h2>"
+    if data.is_observer:
+        msg = ""
     else:
-        msg = "Sorry - you didn't get it right!!"
+        if answer in answer_code.split("|"):
+            msg = "<h2>You got it right!!</h2>"
+        else:
+            msg = "Sorry - you didn't get it right!!"
 
     data.html_append("""
   </tr>
@@ -956,10 +963,13 @@ def show_trivia(data, form, user):
     #       admin can do: "action=start_rps"
     #
     state = data.state
-    try:
-        answer = form["answer"].value
-    except LookupError:
-        answer = user.last_answer
+    if data.is_observer:
+        answer = "no-answer"
+    else:
+        try:
+            answer = form["answer"].value
+        except LookupError:
+            answer = user.last_answer
 
     if state == "question" and answer:
         state = "waiting"
@@ -969,8 +979,12 @@ def show_trivia(data, form, user):
 
     if not data.admin_view:
         if state == "question":
-            html_start(data, user)
-            show_question_form(data)
+            if data.is_observer:
+                html_start(data, user, True)
+                show_qwaiting_page(data, "no-answer")
+            else:
+                html_start(data, user)
+                show_question_form(data)
         elif state == "waiting":
             html_start(data, user, True)
             show_qwaiting_page(data, answer)
@@ -987,10 +1001,10 @@ def show_trivia(data, form, user):
     else:
         if state == "question" or state == "waiting":
             html_start(data, user, True)
-            show_qwaiting_page(data, "admin-answer")
+            show_qwaiting_page(data, "no-answer")
         elif state == "answer":
             html_start(data, user)
-            show_answer_page(data, "admin-answer")
+            show_answer_page(data, "no-answer")
         elif state == "winners":
             html_start(data, user)
             show_winners_page(data, user)
@@ -1055,7 +1069,7 @@ def show_rps_waiting_page(data, answer):
         d["paper_indicator"] = "<--- Your throw"
     elif answer == "scissors":
         d["scissors_indicator"] = "<--- Your throw"
-    elif answer == "admin-answer":
+    elif answer == "no-answer":
         pass
     else:
         data.add_error_message("Invalid guess '%s' provided" % answer)
@@ -1118,7 +1132,7 @@ def show_result_page(data, answer):
         d["paper_indicator"] = "<--- Your throw"
     elif answer == "scissors":
         d["scissors_indicator"] = "<--- Your throw"
-    elif answer == "admin-answer":
+    elif answer == "no-answer":
         pass
     else:
         data.add_error_message("Invalid guess '%s' provided" % answer)
@@ -1214,7 +1228,7 @@ def show_rps(data, form, user):
         answer = user.last_answer
 
     if data.admin_view:
-        answer = "admin-answer"
+        answer = "no-answer"
 
     if state == "query" and answer:
         state = "waiting"
@@ -1428,6 +1442,8 @@ def show_admin_controls(data):
     else:
         d["done"] = 'done'
 
+    d["sequence"] = str(data.sequence)
+
     data.html_append("""
 <tr>
 <td>%(start_rps)s</a></td>
@@ -1437,6 +1453,7 @@ def show_admin_controls(data):
 <td>%(declare_winners)s</a></td>
 </tr><tr>
 <td>%(done)s</a></td>
+<td>%(sequence)s</a></td>
 </tr></table>""" % d)
 
 
@@ -2163,6 +2180,9 @@ def get_user_id(environ, data, form):
 
     if user_id == ADMIN_USER_ID:
         data.admin_view = True
+
+    if user_id == OBSERVER_USER_ID:
+        data.is_observer = True
 
     return user_id
 
