@@ -44,7 +44,7 @@ Besides - the current rc kernel is 5.15-rc3, not 5.15-rc5.
 """
 A group of academic security researchers got in trouble this past year for:
 <p>
-<img src="%(image_url)s/mslogo.jpg" height="80">
+<img src="%(image_url)s/security-researchers.jpg" height="120">
 """,
 "Submitting patches with intentional security bugs to the Linux kernel",
 "Publicly announcing kernel security flaws, without first notifying kernel developers",
@@ -58,10 +58,7 @@ However, this caused great consternation.  All previous patches from
 U of MN were reviewed, and the researchers apologized.
 <p>
 Source:
-<ul>
-<a href="https://www.theverge.com/2021/4/30/22410164/linux-kernel-university-of-minnesota-banned-open-source">
 https://www.theverge.com/2021/4/30/22410164/linux-kernel-university-of-minnesota-banned-open-source</a>
-</ul>
 """,
 ],
 
@@ -79,10 +76,7 @@ How many Embedded Linux Conferences have there been?
 There have been 30, counting Embedded Linux Conference Europe
 (and not counting the CELF Worldwide Technical Conference in 2005)
 
-Source:
-<ul>
-<li>https://embeddedlinuxconference.com/
-</ul>
+Source: https://embeddedlinuxconference.com/
 """,
 ],
 
@@ -99,10 +93,8 @@ How old was Linus Torvalds when he made the first announcement of Linux?
 Linus was 21 yeasr old, and a student at the University of Helsinki, in Finland,
 when he announced Linux (in 1991).
 <p>
-Sources:
-<ul>
-<li>https://en.wikipedia.org/wiki/History_of_Linux#The_creation_of_Linux
-</ul>
+Source:
+https://en.wikipedia.org/wiki/History_of_Linux#The_creation_of_Linux
 """,
 ],
 
@@ -110,6 +102,8 @@ Sources:
 """
 
 How many times has Linux landed on Mars?
+
+<img align="center" src="%(image_url)s/mars.jpg" height="100">
 """,
 "once",
 "14 times",
@@ -123,18 +117,22 @@ of the Perserverance rover</li>
 <li>13 landings from Helicopter flights
 <li>1 "landing" of the descent stage (Linux was used for EDL video work)</li>
 </ul>
+<img align="center" src="%(image_url)s/perseverance-rover.jpg" height="100">
+&nbsp; &nbsp;
+<img align="center" src="%(image_url)s/ingenuity-helicopter.jpeg" height="100">
+&nbsp; &nbsp;
+<img align="center" src="%(image_url)s/nasa_perseverance_landing_graphic.jpg" height="100">
 <p>
-Sources:
-<ul>
-<li>https://www.theregister.com/2021/02/23/perseverance_landing_video/
-</ul>
+Source:
+https://www.theregister.com/2021/02/23/perseverance_landing_video/
 """,
 ],
 
 6: [
 """
-Who wrote which "War of the Worlds"?
-<img align="center" src="%(image_url)s/asimov.jpeg" height="100">
+Who wrote the book "The War of the Worlds"?
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+<img align="center" src="%(image_url)s/war-of-the-worlds.jpeg" height="150">
 
 """,
 "Edgar Rice Burroughs",
@@ -142,9 +140,15 @@ Who wrote which "War of the Worlds"?
 "H.G. Wells",
 "both",
 """
-
+<table><tr><td width="50%%">
+The War of the Worlds was written betwen 1895 and 1897 by H.G. Wells.  It is
+one of the earliest stories to detail a conflict between mankind and an
+extraterrestrial race.</td>
+<td>
+<img align="center" src="%(image_url)s/HG-Wells.jpg" height="100">
+</td></tr></table>
 <p>
-Source:
+Sources:
 <ul>
 <li>https://en.wikipedia.org/wiki/The_War_of_the_Worlds
 <li>Full Text available at: https://en.wikisource.org/wiki/The_War_of_the_Worlds
@@ -157,21 +161,26 @@ Source:
 
 7: [
 """
+<table><tr><td width="50%%">
 Which of the following companies was victorious in an important lawsuit about
 copyright of APIS, that was resolved this year by the US Supreme Court?
+</td><td>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+<img align="center" src="%(image_url)s/supreme-court.webp" height="100">
+</td></tr><table>
 """,
 "Oracle",
 "Google",
 "",
 "red",
 """
+<img align="center" src="%(image_url)s/google.png" height="70">
+<p>
 The court ruled that Google's use of the JAVA API constituted "fair use"
 under copyright law.
 <p>
 Source:
-<ul>
-<li>https://www.zdnet.com/article/google-beats-oracle-in-biggest-programming-copyright-supreme-court-case-ever/</li>
-</ul>
+https://www.zdnet.com/article/google-beats-oracle-in-biggest-programming-copyright-supreme-court-case-ever/</li>
 """,
 
 ],
@@ -179,53 +188,61 @@ Source:
 8: [
 """
 How many instances of Linux are there now in outer space?
+&nbsp; &nbsp; &nbsp;
+<img align="center" src="%(image_url)s/space.jpg" height="90">
 """,
 "less than 100",
 "more than 100",
 "",
 "red",
 """
-
+<table><tr><td width="50%%">
 There are actually about 106,000 instance of Linux in outer space - most
 of them in the 1607 working Starlink satellites.  Each Starlink satellite uses
 66 instances of Linux.
+</td><td>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+<img align="center" src="%(image_url)s/starlink.png" height="120">
+</td></tr></table>
 <p>
 Source:
-<ul>
-<li>https://en.wikipedia.org/wiki/Starlink
-</ul>
-
+https://en.wikipedia.org/wiki/Starlink
 """,
 ],
 
 9: [
 """
+<table><tr><td>
+<img align="center" src="%(image_url)s/space.jpg" height="120">
+</td><td>&nbsp; &nbsp;
 Speaking of space... The Space Needle is:
+</td></tr></table>
 """,
 "the name of a hypothetical space elevator (project) proposed by NASA",
 "an observation tower in Seattle, Washington",
 "both",
 "red",
 """
-
+<table><tr><td>
+<img align="center" src="%(image_url)s/Space_Needle.jpg" height="120">
+</td><td>&nbsp;&nbsp;</td><td>
 NASA has studied space elevators, but has no project named "Space Needle".
 The most serious study of space elevators appears to
 have been the NIAC (NASA Institute for Advanced Concepts)
 Phase 2 report from 2003. In that report,
 the space elevators were called ... "space elevators".
+</td></tr></table>
 <p>
 Source:
-<ul>
-<li>
 http://www.niac.usra.edu/files/studies/final_report/521Edwards.pdf
-</ul>
-
 """,
 ],
 
 10: [
 """
 How old is the Space Needle?
+&nbsp; &nbsp; &nbsp;
+<img align="center" src="%(image_url)s/Space_Needle.jpg" height="120">
 """,
 "less than 50 years old",
 "more than 50 years old",
@@ -233,44 +250,43 @@ How old is the Space Needle?
 "red",
 """
 It was originally built in April, 1962 the 1962 world's fair in Seattle,
-making it currently 59 years old.  I visited it when I was 10 years old,
-in the early 70s.
-
+making it currently 59 years old.<br>
+I visited it in the early 1970s, when I was 10 years old.
+<p>
 When it was built, it was the tallest structure in the US west of the
 Mississippi river.
-
-<p>
-<img src="%(image_url)s/space_needle.png" height="150">
 <p>
 Source:
-<ul>
-<li>
-</ul>
-<p align="center">
-
+https://en.wikipedia.org/wiki/Space_Needle
 """,
 ],
 
 11: [
 """
+<table><tr><td>
+<img align="center" src="%(image_url)s/laser.jpeg" height="150">
+<td><td>&nbsp; &nbsp; &nbsp;</td><td>
 Scientist recently demonstrate two ways to create truly random numbers
-extremely quickly using a laser.  Which solution produced data more quickly:
+extremely quickly using a laser.<br>
+Which solution produced data more quickly:
+</td></tr></table>
 """,
 "a laser reflecting with itself in an special micro-cavity",
 "a laser interacting with the quantum vacuum state",
 "",
 "green",
 """
+<table><tr><td width="60%%">
 Both of these were demonstrated this year.  The laser reflecting in a
 micro-cavity produced random numbers at a rate of 250 terabytes per second.
 The 'quantum vacuum' solution was susceptible to external noise, which could
 de-randomize the output, that had to be removed in post-processing.
 It "only" produced about 19 gigabits of random data per second.
+</td><td>
+&nbsp;&nbsp;
+<img src="%(image_url)s/laser-hourglass-random-numbers.jpg" height="150">
+</td></tr></table>
 <p>
-<img src="%(image_url)s/RNG-laser-micro-cavity.jpg" height="150">
-<img src="%(image_url)s/RNG-laser-quantum-vacuum" height="150">
-<p>
-
 Sources:
 <ul>
 <li>https://phys.org/news/2021-02-scientists-laser-random-ultrafast.html
@@ -284,22 +300,26 @@ Sources:
 12: [
 """
 PREEMPT_RT has finally been fully merged into the mainstream Linux kernel!
+&nbsp; &nbsp; &nbsp;
+<img align="center" src="%(image_url)s/stopwatch.jfif" height="100">
+
 """,
 "True",
 "False",
 "",
 "red",
 """
+<table><tr><td>
+<img align="center" src="%(image_url)s/shark-with-laser.jpg" height="100">
+</td><td>&nbsp;&nbsp;</td><td>
 Significant parts of the PREEMPT_RT patch were merged in the 5.14 and 5.15
 kernels, but there are still some parts remaining:  175 patches, affecting
 215 files, 1350+ 2650- lines.  A few items, including some things
 related to cpu_chill() and NOHZ remain.
-
+</td></tr></table>
+<p>
 Sources:
-<ul>
-<li>https://marketresearchtelecast.com/linux-central-real-time-patches-integrated-after-17-years/161932
-</ul>
-
+https://marketresearchtelecast.com/linux-central-real-time-patches-integrated-after-17-years/161932
 <p align="center">
 Note: <i>While researching this, I found articles announcing
 that PREEMPT_RT was close to being fully mainlined in
@@ -322,9 +342,7 @@ despite kernel code changes.
 
 <p>
 Source:
-<ul>
-<li>https://lwn.net/Articles/857148/
-</ul>
+https://lwn.net/Articles/857148/
 """,
 ],
 
@@ -344,14 +362,9 @@ As one comentator put it:
 <i>"YAY! One fewer way for stars to align wrong and maintainers to screw up."</i>
 <p>
 Source:
-<ul>
-<li>"The rest of the 5.15 merge window" - https://lwn.net/Articles/868221/
-</ul>
-
+"The rest of the 5.15 merge window" - https://lwn.net/Articles/868221/
 <p align="center">
 <i>I warned you this would happen!</i>
-<p align="center">
-
 """,
 ],
 
@@ -359,53 +372,41 @@ Source:
 """
 How many private, all non-professional missions to outer space have there
 been, ever?
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+<img align="center" src="%(image_url)s/private-astronauts.jpeg" height="120">
 """,
 "one",
 "two",
 "three",
 "red",
 """
-
+<img align="center" src="%(image_url)s/inspiration4.jpeg" height="80">
 They are the Inspiration4 mission and the Blue Origin sub-orbital flight.
-The Inspiration 4 mission (launched by Spacex) is the only orbital one
+<img align="center" src="%(image_url)s/blue-origin.jpeg" height="80">
 <p>
-<table><tr><td>mission: -></td>
-<td>spaceX (Inspiration 4)</td>
+<ul>
+<table bgcolor="#d0d0ff" border="1"><tr><td>attribute/mission</td>
+<td>Inspiration 4 (Spacex)</td>
 <td>Virign Galactic</td>
 <td>Blue Original</td>
 <td>other missions</td>
 </tr>
 <tr><td>privately funded</td>
-</td>yes<td>
-</td>yes<td>
-</td>yes<td>
-</td>some, partially<td>
+<td align="center">yes</td><td align="center">yes</td><td align="center">yes</td><td align="center">some, partially</td>
 </tr>
 <tr><td>all non-professionals</td>
-</td>yes<td>
-</td>no*<td>
-</td>yes<td>
-</td>no<td>
+<td align="center">yes</td><td align="center">no*</td><td align="center">yes</td><td align="center">no</td>
 </tr>
 <tr><td>orbital</td>
-</td>yes<td>
-</td>no<td>
-</td>no<td>
-</td>many<td>
+<td align="center">yes</td><td align="center">no</td><td align="center">no</td><td align="center">many</td>
 </tr>
 <tr><td>to ISS</td>
-</td>no<td>
-</td>no<td>
-</td>no<td>
-</td>most<td>
+<td align="center">no</td><td align="center">no</td><td align="center">no</td><td align="center">most</td>
 </tr>
 <tr><td>to ISS</td>
-</td>no<td>
-</td>no<td>
-</td>no<td>
-</td>most<td>
-</tr>
-</table>
+<td align="center">no</td><td align="center">no</td><td align="center">no</td><td align="center">most</td>
+</tr></table>
+</ul>
 <p>
 * The Virgin Galactic sub-orbital flight had a professional pilot.
 
@@ -425,17 +426,16 @@ one of the crew members is shown watching which "in-flight" movie?
 "Spaceballs",
 "both",
 """
+<table><tr><td>
 You can see Spaceballs playing on Chris Sembroski's tablet during the
 landing video.
-<p>
-<img src="%(image_url)s/inspiration4-spaceballs-movie.png" height="120">
+</td><td>
+<img src="%(image_url)s/Inspiration4-spaceballs2-during-landing.png" height="180">
+</td></tr></table>
 <p>
 
 Source:
-<ul>
-<li>This youtube video of the landing: https://youtu.be/dpFKNNl47AM?t=789
-</ul>
-
+This youtube video of the landing: https://youtu.be/dpFKNNl47AM?t=789
 <p align="center">
 <i>I don't always go to space, but when I do, I watch "Spaceballs"</i>
 """,
@@ -461,9 +461,7 @@ Source:
 Tux was announced by Linus Torvalds in 1996
 <p>
 Source:
-<ul>
-<li>https://en.wikipedia.org/wiki/History_of_Linux#Official_mascot
-</ul>
+https://en.wikipedia.org/wiki/History_of_Linux#Official_mascot
 """,
 ],
 
@@ -479,24 +477,22 @@ bus from garbage.  It uses:
 "",
 "green",
 """
-<img src="%(image_url)s/bus-human-waste.jpeg" height="60">
-<p>
+<table><tr><td>
+<img src="%(image_url)s/bio-bus.jpeg" width="300">
+</td><td>&nbsp;&nbsp;</td><td>
 Recent work by the University of Bristol's Robotics Laboratory,
-has taken existing Microbial Fuel Cells technology, and has
+has taken existing Microbial Fuel Cells technology and
 minituarized it to demonstrate MFCs that are smaller than
 a AA battery, with similar performance.  (The MFCs powering the bus
 are bigger.)
+</td></tr></table>
 <p>
 The 'banana peels and beer' is from a scene where Doc Brown is filling
 a "Mr. Fusion" device in the movie "Back to the Future".
 
 <p>
 Source:
-<ul>
-<li>
 https://robohub.org/robot-stomachs-powering-machines-with-garbage-and-pee/
-</ul>
-
 <p align="center">
 <i>Important Note: "Mr. Fusion" is a fictional device.</i>
 """,
@@ -504,28 +500,29 @@ https://robohub.org/robot-stomachs-powering-machines-with-garbage-and-pee/
 
 19: [
 """
+<table><tr><td width="70%%">
 A record size for chip feature density was announced in May
-by IBM.  The feature density was described as:
-
-<p>
-<img src="%(image_url)s/ibm-2nm-chip.jpeg" height="100">
-
+by IBM.<br>
+The feature density was described as:
+</td><td>
+<img align="center" src="%(image_url)s/ibm-chip.jpeg" height="100">
+</td></tr></table>
 """,
 "4 nanometers",
 "2 nanometers",
 "",
 "red",
 """
+<table><tr><td>
+<img src="%(image_url)s/IBM-2NM-chip.png" height="180">
+</td><td>&nbsp;&nbsp;</td><td>
 Individual physical elements on the chip are larger than 2 nanometers, but
 due to 3-D stacking the effective density of a demonstration wafer
 had about 333 million transistors per square millimeter.
-
+</td></tr></table>
 <p>
 Source:
-<ul>
-<li>
 https://www.anandtech.com/show/16656/ibm-creates-first-2nm-chip
-</ul>
 <p align="center">
 <i>What will those crazy scientists thing of next!!</i>
 
@@ -534,57 +531,50 @@ https://www.anandtech.com/show/16656/ibm-creates-first-2nm-chip
 
 20: [
 """
-
 What major phone vendor has announced a program to "upcycle" old phones
 into useful IOT devices:
-
-<p>
-
 """,
 "Samsung",
 "Apple",
 "Sony",
 "green",
 """
-
+<table><tr><td>
+<img align="center" src="%(image_url)s/galaxy-upcycling.jpeg" height="120">
+</td><td>&nbsp;&nbsp;</td><td>
 Samsung is releasing special firmware updates for old Galaxy phones that
 turn them into smart home devices such as a childcare monitor,
 a pet care solution, or a light sensor (for home automation control).
+</td></tr></table>
 <p>
 Source:
-<ul>
-<li>
 https://www.zdnet.com/article/samsung-launches-software-update-to-turn-older-galaxy-phones-into-iot-devices/
-</ul>
 <p align="center">
 <i>Another win for embedded Linux!</i>
-
 """,
 ],
 
 21: [
 """
-
 What large tech company is headquartered in Seattle?
-
+&nbsp; &nbsp; &nbsp;
+<img align="center" src="%(image_url)s/seattle.jpeg" height="120">
 """,
 "Amazon",
 "Microsoft",
 "",
 "green",
 """
-
+<table><tr><td>
+<img src="%(image_url)s/amazon-spheres.jpeg" height="120">
+</td><td>&nbsp;&nbsp;</td><td>
 Amazon's headquarters are in downtown Seattle.
-<p>
-<img src="%(image_url)s/amazon-spheres.jpg" height="150">
+</td></tr></table>
 <p>
 Microsoft's headquarters are in Redmond Washington, about 12 miles away
 <p>
-Sources:
-<ul>
-<li>
+Source:
 https://en.wikipedia.org/wiki/Amazon_(company)
-</ul>
 <p align="center">
 <i>Just a few blocks from where I'm standing! (I think)</i>
 """,
@@ -592,14 +582,12 @@ https://en.wikipedia.org/wiki/Amazon_(company)
 
 22: [
 """
+
+<img src="%(image_url)s/beowulf.jpeg" height="100">
 What is the Beowulf project?
-
-<p>
-<img src="%(image_url)s/beowulf.png" height="100">
-
 """,
-"the name of a new quantum computer by Google",
-"one of the earliest uses of Linux in supercomputer clusters",
+"The name of a new quantum computer by Google",
+"One of the earliest uses of Linux in supercomputer clusters",
 "",
 "red",
 """
@@ -608,11 +596,8 @@ performance using commodity hardware.
 <p>
 Google's quantum computer is named "Sycamore".
 <p>
-Sources:
-<ul>
-<li>
+Source:
 https://en.wikipedia.org/wiki/Beowulf_cluster
-</ul>
 """,
 
 ],
@@ -626,18 +611,16 @@ The movie "Free Guy" is about:
 "",
 "green",
 """
+<table><tr><td>
+<img src="%(image_url)s/free-guy.jpeg" height="180">
+</td><td>&nbsp;&nbsp;</td><td>
 Free Guy is a movie staring Ryan Reynolds about an NPC becoming a
 true Artificial Intelligence.  It's also a fairly insightful comedy
 about the state of modern video games.
-<p>
-<img src="%(image_url)s/free-guy.jpg" height="150">
-<p>
+</td></tr></table>
 <p>
 Source:
-<ul>
-<li>
 https://en.wikipedia.org/wiki/Free_Guy
-</ul>
 <p align="center">
 <i>
 """,
@@ -645,6 +628,8 @@ https://en.wikipedia.org/wiki/Free_Guy
 
 24: [
 """
+<table><tr><td width="50%%">
+<img align="center" src="%(image_url)s/old-earth-map.jpeg" height="150">
 How many countries has Embedded Linux Conference been in?
 
 """,
@@ -678,13 +663,9 @@ They want something that provides more of the capabilities that copyright
 assignment provides, since some projects (notably gcc) have started
 accepting DCOs in place of copyright assignment, and the FSF doesn't think
 any of the the current industry-standard DCOs are adequate for this.
-
 <p>
-
 Source:
-<ul>
-<li>https://www.fsf.org/blogs/licensing/FSF-copyright-handling
-</ul>
+https://www.fsf.org/blogs/licensing/FSF-copyright-handling
 <p align="center">
 """,
 ],
@@ -723,13 +704,12 @@ What epic science fiction trilogy is coming to streaming this fall?
 """
 
 <table><tr><td>
-Dune
+&nbsp;&nbsp;Dune
 </td><td>
-<img src="%(image_url)s/dune-movie-poster.jpg" height="100">
+<img src="%(image_url)s/dune.jpeg" height="120">
+</td><td>&nbsp; and Foundation &nbsp;&nbsp;
 </td><td>
-<font size="+1">&nbsp;&nbsp; <b>Foundation</b> &nbsp;&nbsp;</font>
-</td><td>
-<img src="%(image_url)s/foundation-image.jpg" height="100">
+<img src="%(image_url)s/foundation-movie.jpeg" height="120">
 </td></tr></table>
 
 """,
