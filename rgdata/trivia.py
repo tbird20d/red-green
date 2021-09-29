@@ -121,14 +121,15 @@ There were the following:
 <ul>
 <li>1 for the Ingenuity helicopter, while it was stowed during the landing
 of the Perserverance rover</li>
+<li>1 landing of the EDL camera linux (Linux was used for EDL video work)</li>
+<li>1 landing of the helicopter base stationx Linux</li>
 <li>13 landings from Helicopter flights
-<li>1 "landing" of the descent stage (Linux was used for EDL video work)</li>
 </ul>
 <img align="center" src="%(image_url)s/perseverance-rover.jpg" height="100">
 &nbsp; &nbsp;
+<img align="center" src="%(image_url)s/nasa_perseverance_landing_graphic.jpg" height="100">
 <img align="center" src="%(image_url)s/ingenuity-helicopter.jpeg" height="100">
 &nbsp; &nbsp;
-<img align="center" src="%(image_url)s/nasa_perseverance_landing_graphic.jpg" height="100">
 <p>
 Source:
 https://www.theregister.com/2021/02/23/perseverance_landing_video/
@@ -256,8 +257,8 @@ How old is the Space Needle?
 "",
 "red",
 """
-It was originally built in April, 1962 the 1962 world's fair in Seattle,
-making it currently 59 years old.<br>
+It was originally built in April, 1962 for the world's fair that year
+in Seattle, making it currently 59 years old.<br>
 I visited it in the early 1970s, when I was 10 years old.
 <p>
 When it was built, it was the tallest structure in the US west of the
@@ -319,7 +320,7 @@ PREEMPT_RT has finally been fully merged into the mainstream Linux kernel!
 <table><tr><td>
 <img align="center" src="%(image_url)s/shark-with-laser.jpg" height="100">
 </td><td>&nbsp;&nbsp;</td><td>
-Significant parts of the PREEMPT_RT patch were merged in the 5.14 and 5.15
+Significant parts of the PREEMPT_RT patch were merged in the 5.13 and 5.15
 kernels, but there are still some parts remaining:  175 patches, affecting
 215 files, 1350+ 2650- lines.  A few items, including some things
 related to cpu_chill() and NOHZ remain.
@@ -406,9 +407,6 @@ They are the Inspiration4 mission and the Blue Origin sub-orbital flight.
 </tr>
 <tr><td>orbital</td>
 <td align="center">yes</td><td align="center">no</td><td align="center">no</td><td align="center">many</td>
-</tr>
-<tr><td>to ISS</td>
-<td align="center">no</td><td align="center">no</td><td align="center">no</td><td align="center">most</td>
 </tr>
 <tr><td>to ISS</td>
 <td align="center">no</td><td align="center">no</td><td align="center">no</td><td align="center">most</td>
@@ -674,6 +672,7 @@ any of the the current industry-standard DCOs are adequate for this.
 Source:
 https://www.fsf.org/blogs/licensing/FSF-copyright-handling
 <p align="center">
+<i>James Bottomley and many others think this is a terrible idea.</i>
 """,
 ],
 
@@ -721,5 +720,24 @@ What epic science fiction trilogy is coming to streaming this fall?
 
 """,
 ],
+
+28: [
+"""
+What version of Linux is running in the Mars Helicopter? 
+&nbsp;&nbsp;
+<img align="center" src="%(image_url)s/ingenuity-helicopter.jpeg" height="100">
+
+""",
+"3.4",
+"4.15",
+"5.13",
+"green",
+"""
+
+It's a Qualcomm vendor kernel, from the BSP for the dragonboard (from 2014).
+
+""",
+],
+
 }
 
