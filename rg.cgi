@@ -568,6 +568,8 @@ def get_winners(data):
     file_list = os.listdir(still_in_dir)
     winners = []
     for still_in_user_id in file_list:
+        if still_in_user_id in [ADMIN_USER_ID, OBSERVER_USER_ID]:
+            continue
         user_filepath = user_dir + still_in_user_id
         try:
             fd = open(user_filepath, "r", encoding="utf-8")
@@ -1351,10 +1353,15 @@ def html_start(data, user, refresh=False):
     if user and data.phase != "registration":
         data.html_append('<td width="10px">###</td><td>&nbsp;')
 
-        if user.status == STILL_IN:
-            data.html_append("Status: <b>Still In!!</b> </td>\n")
+        if data.is_observer:
+            data.html_append("Status: <b>Observing</b> </td>\n")
+        elif data.admin_view:
+            data.html_append("Status: <b>Administering</b> </td>\n")
         else:
-            data.html_append("Status: <b>Eliminated for now</b> </td> \n")
+            if user.status == STILL_IN: 
+                data.html_append("Status: <b>Still In!!</b> </td>\n")
+            else:
+                data.html_append("Status: <b>Eliminated for now</b> </td> \n")
     data.html_append("</td></tr></table>")
 
     # data.add_notice("browser cookie='%s'" % data.cookie)
@@ -1630,6 +1637,8 @@ def make_all_users_still_in(data):
     # change user status back to STILL_IN for all users (old method)
     file_list = os.listdir(user_dir)
     for user_id_filename in file_list:
+        if user_id_filename in [ADMIN_USER_ID, OBSERVER_USER_ID]:
+            continue
         user_filepath = user_dir + user_id_filename
         try:
             fd = open(user_filepath, "r+", encoding="utf-8")
