@@ -1,4 +1,5 @@
 valid_user_ids = [ "admin-game-admin",
+    "observer",
     "NXN982CXMJT",
     "PPNTC4JXHDX",
     "ZCNG3L5LDJZ",

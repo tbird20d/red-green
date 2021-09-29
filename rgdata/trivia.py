@@ -28,7 +28,7 @@ tdata = {
       """,
 
 "v5.15-rc5",
-"v5.14.7",
+"v5.14.8",
 "",
 "red",
 """
@@ -44,7 +44,7 @@ Besides - the current rc kernel is 5.15-rc3, not 5.15-rc5.
 """
 A group of academic security researchers got in trouble this past year for:
 <p>
-<img src="%(image_url)s/security-researchers.jpg" height="120">
+<img src="%(image_url)s/black-hat.jpeg" height="120">
 """,
 "Submitting patches with intentional security bugs to the Linux kernel",
 "Publicly announcing kernel security flaws, without first notifying kernel developers",
@@ -65,6 +65,7 @@ https://www.theverge.com/2021/4/30/22410164/linux-kernel-university-of-minnesota
 3: [
 """
 How many Embedded Linux Conferences have there been?
+<img align="center" src="%(image_url)s/elc-logo.jpeg" height="100">
 """,
 
 "16",
@@ -73,9 +74,14 @@ How many Embedded Linux Conferences have there been?
 "red",
 """
 <p>
+<table><tr><td width="50%%">
 There have been 30, counting Embedded Linux Conference Europe
 (and not counting the CELF Worldwide Technical Conference in 2005)
-
+</td><td>&nbsp;&nbsp;</td>
+<td>
+<img src="%(image_url)s/embeddedlinuxconference.png" height="200">
+</td></tr></table>
+<p>
 Source: https://embeddedlinuxconference.com/
 """,
 ],
@@ -83,6 +89,7 @@ Source: https://embeddedlinuxconference.com/
 4: [
 """
 How old was Linus Torvalds when he made the first announcement of Linux?
+<img align="center" src="%(image_url)s/linus.png" height="120">
 """,
 "21 years old",
 "24 years old",
@@ -90,7 +97,7 @@ How old was Linus Torvalds when he made the first announcement of Linux?
 "green",
 """
 
-Linus was 21 yeasr old, and a student at the University of Helsinki, in Finland,
+Linus was 21 years old, and a student at the University of Helsinki, in Finland,
 when he announced Linux (in 1991).
 <p>
 Source:
@@ -142,7 +149,7 @@ Who wrote the book "The War of the Worlds"?
 """
 <table><tr><td width="50%%">
 The War of the Worlds was written betwen 1895 and 1897 by H.G. Wells.  It is
-one of the earliest stories to detail a conflict between mankind and an
+one of the earliest stories to describe a conflict between mankind and an
 extraterrestrial race.</td>
 <td>
 <img align="center" src="%(image_url)s/HG-Wells.jpg" height="100">
