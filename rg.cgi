@@ -1062,6 +1062,7 @@ def show_rps_waiting_page(data, answer):
     d["rock_indicator"] = ""
     d["paper_indicator"] = ""
     d["scissors_indicator"] = ""
+    d["you_chose"] = 'You chose to "throw":'
 
     if answer == "rock":
         d["rock_indicator"] = "<--- Your throw"
@@ -1070,7 +1071,7 @@ def show_rps_waiting_page(data, answer):
     elif answer == "scissors":
         d["scissors_indicator"] = "<--- Your throw"
     elif answer == "no-answer":
-        pass
+        d["you_chose"] = ""
     else:
         data.add_error_message("Invalid guess '%s' provided" % answer)
 
@@ -1078,7 +1079,7 @@ def show_rps_waiting_page(data, answer):
     d["rps_image_size"] = data.rps_image_size
 
     data.html_append("""
-You chose to "throw":
+%(you_chose)s
 <ul>
 <table>
   <tr>
@@ -1125,6 +1126,7 @@ def show_result_page(data, answer):
     d["rock_indicator"] = ""
     d["paper_indicator"] = ""
     d["scissors_indicator"] = ""
+    d["you_chose"] = 'You chose to "throw":'
 
     if answer == "rock":
         d["rock_indicator"] = "<--- Your throw"
@@ -1133,7 +1135,7 @@ def show_result_page(data, answer):
     elif answer == "scissors":
         d["scissors_indicator"] = "<--- Your throw"
     elif answer == "no-answer":
-        pass
+        d["you_chose"] = ""
     else:
         data.add_error_message("Invalid guess '%s' provided" % answer)
 
@@ -1154,7 +1156,7 @@ def show_result_page(data, answer):
     d["rps_image_size"] = data.rps_image_size
 
     data.html_append("""
-You chose to "throw":
+%(you_chose)s
 <ul>
 <table>
   <tr>
@@ -1180,7 +1182,10 @@ You chose to "throw":
 
     # finish the page
     # this will have to be made generic for alternate items
-    msg = "Sorry - you lost to the host!!"
+    if data.is_observer:
+        msg = ""
+    else:
+        msg = "Sorry - you lost to the host!!"
     if answer == "rock" and host_throw == "scissors":
         msg = "<h2>You beat the host!!</h2>"
     if answer == "scissors" and host_throw == "paper":
@@ -1222,10 +1227,13 @@ def show_rps(data, form, user):
     #       admin can do: "action=done"
     #
     state = data.state
-    try:
-        answer = form["answer"].value
-    except:
-        answer = user.last_answer
+    if data.is_observer:
+        answer = "no-answer"
+    else:
+        try:
+            answer = form["answer"].value
+        except:
+            answer = user.last_answer
 
     if data.admin_view:
         answer = "no-answer"
@@ -1237,8 +1245,12 @@ def show_rps(data, form, user):
 
     if not data.admin_view:
         if state == "query":
-            html_start(data, user)
-            show_rps_query_form(data)
+            if data.is_observer:
+                html_start(data, user, True)
+                show_rps_waiting_page(data, answer)
+            else:
+                html_start(data, user)
+                show_rps_query_form(data)
         elif state == "waiting":
             html_start(data, user, True)
             show_rps_waiting_page(data, answer)
