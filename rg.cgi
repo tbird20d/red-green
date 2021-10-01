@@ -1381,7 +1381,6 @@ def html_start(data, user, refresh=False):
 
 def show_admin_controls(data):
     d = {"url": data.url}
-    d["sequence"] = data.sequence
     if default_suppress_refresh:
         d["refresh"] = "(currently off)"
     else:
@@ -1461,8 +1460,6 @@ def show_admin_controls(data):
     else:
         d["done"] = 'done'
 
-    d["sequence"] = str(data.sequence)
-
     data.html_append("""
 <tr>
 <td>%(start_rps)s</a></td>
@@ -1472,7 +1469,6 @@ def show_admin_controls(data):
 <td>%(declare_winners)s</a></td>
 </tr><tr>
 <td>%(done)s</a></td>
-<td>%(sequence)s</a></td>
 </tr></table>""" % d)
 
 
