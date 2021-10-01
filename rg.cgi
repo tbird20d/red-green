@@ -1765,7 +1765,7 @@ def do_register_user(data, form):
     # check data while collecting it from form
     error_count = 0
     try:
-        user_id = form["user_id"].value
+        user_id = form["user_id"].value.strip()
     except:
         data.add_error_message("Missing form value for 'Event Confirmation Number'")
         user_id = ""
