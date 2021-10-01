@@ -1,0 +1,30 @@
+To operate the game on closinggame.net:
+
+The server runs an Nginx web server, with a uwsgi daemon
+to manage WSGI applications (scripts).  The uwsgi daemon
+must be restarted every time a change is made to any of
+the python files that make up the game.  This includes
+rg.cgi, and the following files from rgdata:
+ - valid_user_ids.py
+ - trivia.py
+ - rps.py
+
+You can start, stop and restart the uwsgi daemon, using
+the scripts:
+ - start-uwsgi
+ - stop-uwsgi
+ - restart-uwsgi
+
+Note that the game keeps a log file at rgdata/rg.log
+Use 'log_this()' inside rg.cgi in order to dump items
+to the log.  If a python exception is encountered, this
+should get dumped to the log.
+
+Other places you can look for debugging information are:
+/var/log/uwsgi/rg
+this has some nice performance data for the script, and a list
+of all the request/responses peformed.
+
+Also:
+/var/log/nginx/ has web access and error logs
+
