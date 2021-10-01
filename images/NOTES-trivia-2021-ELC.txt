@@ -1,0 +1,397 @@
+Here are some ideas for trivia questions for ELC 2021
+
+Categories:
+
+== space stuff:
+Q. How many times has Linux landed on Mars?
+ green - once
+ red - 14 times
+ green and red - more than 14 times
+
+answer:
+green and red more than 14 times
+
+There were 14 for the Ingenuity helicopter, (including 1 while the
+helicopter was stowed in the Perserverance rover, during the rover
+landing), and 1 "landing" by the descent stage (Linux was used for EDL
+video work)
+Source: https://www.theregister.com/2021/02/23/perseverance_landing_video/
+
+----
+Q. How many instances of Linux are now in outer space?
+ green - less than 100
+ red - more than 100
+
+red - more than 100.  There are actually about 106,000 instances of
+Linux in outer space, most of them in the 1607 working Starlink
+satellites.
+
+----
+Q. How many private, all non-professional missions to outer space have there
+been, ever?
+ green - one
+ red - two
+ green and red - three
+
+red - The Inspiration 4 mission is the only orbital one I'm aware of, and
+the Blue Origin sub-orbital flight.  The Virgin Galactic sub-orbital flight
+had a professional pilot.
+
+mission:                 spaceX (inspiration 4), VG, Blue Origin, other missions
+privately funded missions:  yes                  yes   yes          no 
+all non-professional:       yes                  no*   yes          no
+orbital:                    yes                  no    no           most
+to ISS:                     no                   no    no           most
+to moon:                    no                   no    no           a few
+elsewhere:                  no                   no    no           a few*
+
+e.g. to service the hubble space telescope
+
+----
+Q. During the landing sequence for the Inspiration4 private space mission,
+one of the crew members is shown watching which "in-flight" movie?
+ green - Alien
+ red - Spaceballs
+ red and green - Star Wars
+
+red - Spaceballs
+
+Source: this youtube video: https://youtu.be/dpFKNNl47AM?t=789
+You can see Spaceballs playing on Chris Sembroski's tablet during the
+landing video.
+
+
+== IOT: Real or fake
+
+== license news
+
+Q. The FSF recently blogged about:
+ green - finally making a GPL v4 version of the license
+ red - Writing their own version of the DCO (developer certificate of origin)
+
+answer:
+ red - writing their own version of the DCO
+
+They want something that provides more of the capabilities that copyright
+assignment provides, since some projects (notably gcc) have started 
+accepting DCOs in place of copyright assignment, and the FSF doesn't think
+any of the the current industry-standard DCOs are adequate for this.
+
+Source: 
+
+== Linux kernel
+
+Q. The currently released version of Linux is: 
+   green - 5.15-rc5
+   red - 5.14.6
+
+red: 5.14.6
+
+A release "candidate" doesn't count as a released kernel.
+And the current rc number is -rc3, not -rc5
+
+----
+Q. A group of academics got in trouble this past year?
+ green - submitting patches with intentionally security bugs to the Linux kernel
+ red - disclosing security flaws in the Linux kernel, without first notifying the kernel community
+
+green - University of Minnesota researchers submitted some patches
+to various mailing lists, that contained known flaws.  Their stated intention
+was not to introduce bugs, but rather to test kernel security review practices.
+This caused great consternation.
+
+----
+
+
+----
+Q. printk has been changed in the 5.15 Linux kernel with the ability to:
+ green - automatically translate messages into other languages besides English
+ red - get a list of all printk message strings included in the kernel
+
+answer: red - get a list of all printk messages included in the kernel
+
+The purpose is to allow checking that kernel messages that are checked
+by diagnostics tools are still present, despite kernel code changes.
+
+Source: lwn.net
+----
+
+Q. The 5.15 kernel now uses the -Werror flag by default.
+  The intended result is that:
+ green - any compiler warning is converted into an error that will halt the build
+ red - certain errors (specified in a special variable) are ignored as warnings
+
+Answer:
+ green - any compiler warning is converted into an error that will halt the build
+
+Source: lwn.net
+
+== conference news
+Q. How many Embedded Linux Conferences have there been?
+   green - 16
+   red - 30
+
+sub: Tim counting ELC Europe or not???
+
+Source: https://embeddedlinuxconference.com/
+- counting the Embedded Linux Conference
+Europe (and not counting the CELF worldwide technical conference)
+there have been 30)
+
+Q. How many countries has Embedded Linux Conference been in?
+   - green - 6
+   - red - 8
+
+Countries and States where ELC has been held:
+2021 - Washington
+2020 - virtual
+2020 - virtual
+2019 - France
+2019 - California
+2018 - Scotland
+2018 - Oregon
+2017 - Czech Republic
+2017 - Oregon
+2016 - Germany
+2016 - California
+2015 - Ireland
+2015 - California
+2014 - Germany
+2014 - California
+2013 - Scotland
+2013 - California
+2012 - Spain
+2012 - California
+2011 - Czech Republic
+2011-2005 - California - 7
+2010 - England
+2009 - France
+2008 - The Netherlands
+2007 - Austria
+
+California - 13
+Oregon - 2
+Washington - 1
+Austria - 1
+France - 2
+Germany - 2
+UK - 3
+Ireland - 1
+Czech Republic - 2
+Spain - 1
+virtual - 2
+
+
+Industry news
+
+Computer trivia
+
+Computer history
+
+Linux history:
+Q. How old was Linus Torvalds when he made the first announcement of Linux?
+   - green - 21
+   - red - 24
+
+Answer: Green - 21
+
+Linus was 21 years old, and a student at the University of Helsinki, in Finland,
+when he announced Linux (in 1991).
+-----
+Q. Hold old is Tux now:
+ green - 30 years old
+ red - 25 years old
+ red and green - 20 years old
+
+red = 25 years old
+Tux was announced by Linus Torvalds in 1996
+----
+
+Q. Due to recent -Werror work by a number of Linux kernel developers,
+the default config for x86 5.15 will build (with the default config
+for AMD64) without any errors
+ green - true
+ red - false
+
+Nope - (need to try a default build with 5.15-rc2)
+
+== Movies and current media
+
+Q. Free Guy is about:
+ green - a Non-player character in a video game becoming sentient
+ red - a government agent who travels forwards and backwards in time
+
+Answer:
+ green - a Non-player character in a video game becoming sentient
+
+-----
+
+Famous quotes
+
+Science Fiction
+Q. What science fiction epic trilogy is coming to streaming this fall
+   green - Dune
+   red - Foundation
+   green and red - both
+
+Answer:
+ green and red - both
+
+
+----
+
+== Seattle trivia
+  - Seattle regional trivia
+  - Seattle tech trivia
+
+Q. The Space Needle is:
+   green - the name of a hypothetical space elevator (project) proposed 2 years ago by NASA
+   red - an observation tower in Seattle, Washington
+   red & green - both
+
+answer:
+red - an observation tower in Washington State
+
+NASA has studied space elevators, but has no project named "Space Needle".
+
+source: The most serious study of space elevators appears to
+have been the NIAC (NASA Institute for Advanced Concepts)
+Phase 2 report from 2003.  See
+http://www.niac.usra.edu/files/studies/final_report/521Edwards.pdf
+
+---
+
+Q. How old is the Space Needle?
+   green - <50 years old
+   red - >50 years old
+
+red - greater than 50 years old
+
+It was originally built in April, 1962 the 1962 world's fair in Seattle, making it currently 59 years old.  I visited in when I was 10 years old, in the early 70s.
+
+When it was built, it was the tallest structure in the US west of the 
+Mississippi region.
+
+----
+
+Q. What large computer company is headquartered in Seattle?
+  green - Amazon
+  red - Microsoft
+
+answer:
+ green - Amazon
+
+Microsoft's headquarters are in Redmond Washington, about 12 miles away.
+
+== Technology
+Q. What is the Beowulf project?
+ green - the name of a new quantum computer by Google
+ red - one of the earliest uses of Linux in supercomputer clusters
+
+answer:
+ red - one of the earliest uses of Linux in supercomputer clusters
+
+Google's quantum computer is named "Sycamore"
+
+== from trivia
+Q. Scientist recently demonstrate two ways to create truly random numbers
+extremely quickly using a laser.  Which solution was quicker:
+  green - a laser reflecting with itself in an special micro-cavity
+  red - a laser interacting with the quantum vacuum state
+
+answer
+  green - a laser reflecting with itself in an special micro-cavity
+
+Both of these were demonstrated this year.
+green = 250 terabytes per second
+red = 18.8 gigabits per second
+
+The 'vacuum state' solution was susceptible to external noise which could
+bias (and de-randomize) the output, which had to removed in post-processing.
+
+sources: https://phys.org/news/2021-02-scientists-laser-random-ultrafast.html
+https://physicsworld.com/a/fast-quantum-random-number-generator-fits-on-a-fingertip/
+
+----
+Q. Which of the following companies was victorious in an important lawsuit
+   about copyright of APIs, that went all the way to the US Supreme Court?
+   green - Oracle
+   red - Google
+
+answer:
+  red - Google
+
+The court ruled that Google's use of the JAVA API constituted "fair use"
+under copyright law.
+
+source: https://www.zdnet.com/article/google-beats-oracle-in-biggest-programming-copyright-supreme-court-case-ever/
+
+----
+Q. Which longstanding kernel interface was removed in 2021, due to security considerations:
+  green - /dev/kmem
+  red - /proc/sys/kernel/keys
+
+answer:
+  green - /dev/kmem
+
+/dev/kmem was finally removed, after years of being deprecated, in v5.12
+of the Linux kernel.
+
+Source: https://lwn.net/Articles/851531/
+
+----
+Q. What major phone vendor has announced a program to "upcycle" old phones
+   into useful IOT devices:
+   green - Samsung
+   red - Apple
+   green and red - Sony
+
+answer:
+   green - Samsung
+
+Samsung is releasing special firmware updates for old Galaxy phones that
+turn them into smart home devices such as a childcare monitor,
+a pet care solution, or a light sensor (for home automation control).
+
+source:
+https://www.zdnet.com/article/samsung-launches-software-update-to-turn-older-galaxy-phones-into-iot-devices/
+
+----
+
+Q. New technology has been refined (no pun intended) that can power a
+   bus from garbage.  It uses:
+  green - banana peels and beer
+  red - human waste (poo and pee)
+
+Recent work by the University of Bristol's Robotics Laboratory,
+has taken existing Microbial Fuel Cells technology, and has
+minituarized it to demonstrate MFCs that are smaller than
+a AA battery, with similar performance
+
+The 'banana peels and beer' is from a scene where Doc Brown is filling
+a "Mr. Fusion" device in the movie "Back to the Future".  Note:
+"Mr. Fusion" is a fictional device.
+
+source:
+https://robohub.org/robot-stomachs-powering-machines-with-garbage-and-pee/
+
+----
+
+Q. A record size for chip feature density was announced in May by IBM.  The
+   feature density was described as:
+   green - 4 nanometers
+   red - 2 nanometers
+
+Answer:
+ red - 2 nanometers
+
+Individual physical elements on the chip are larger than 2 nanometers, but
+due to 3-D stacking the effective density of a demonstration wafer
+had about 333 million transistors per square millimeter.
+
+source: https://www.anandtech.com/show/16656/ibm-creates-first-2nm-chip
+
+----
+
+== from 
+
