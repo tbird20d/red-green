@@ -19,6 +19,7 @@ fi
 
 # header
 echo "valid_user_ids = [ \"admin-game-admin\","
+echo "    \"observer\","
 
 # body
 cat $1 | sed "s/^/    \"/" | sed "s/$/\",/"
