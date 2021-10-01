@@ -1,6 +1,15 @@
 To do file for red-green web-based game.
 
+= tips = 
+ - Should change the admin id each year, so people can't log in and review
+   the questions ahead of the game (after the data goes live)
+ - Use "observer" user when doing hybrid (online AND in-person) games
+ - overall process:
+   - use start-uwsgi, stop-uwsgi and restart-uwsgi whenever the 
+     data changes
+
 = to do =
+ - add registered user count, and still-in count to user status bar
  - add single-user mode = regular timed trivia game, without moderator
    - use per-user game data
      - make a new directory: user-game-data
@@ -12,12 +21,6 @@ To do file for red-green web-based game.
    - get rid of "still-in" logic for single-user mode
      - add score for top data bar instead
    - add link so user can use the first available guest account
-
- - add a 'watcher-only' view
-   - this could be used in a presentation setting, so you don't have to have
-     coordinated slides
-   - would advance automatically through game
-     - if we have timeout for
 
  - make a help page?
 
@@ -97,7 +100,7 @@ To do file for red-green web-based game.
  - use a markup language for the question pages, instead of pure html
    - use wiki page to create content, then user a generator to convert
      into trivia.py file
-     - hand editing the trivia.py was a major pain point
+     - hand editing the trivia.py is a major pain point
    - create page converter (trivia.py generator)
  - write documentation
  - create standalone mode (not controlled by admin)
