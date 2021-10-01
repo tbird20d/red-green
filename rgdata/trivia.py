@@ -739,5 +739,29 @@ It's a Qualcomm vendor kernel, from the BSP for the dragonboard (from 2014).
 """,
 ],
 
+29: [
+"""
+What subsystem of the Linux kernel had documentation in the mainline
+source repository BEFORE the actual implementation? 
+
+""",
+"v4linux",
+"selinux",
+"ftrace",
+"both",
+"""
+
+Somehow, the documentation patches for ftrace got integrated one kernel
+version before the ftrace implementation code.
+<p>
+Greg KH was not amused.
+<p>
+
+Source: Steven Rostedt
+
+""",
+],
+
+
 }
 
